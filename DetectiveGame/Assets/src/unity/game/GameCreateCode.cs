@@ -33,7 +33,7 @@ public class GameCreateCode : MonoBehaviour {
         code += common.JsonUtil.serialize(game.GameFactory.getGame());
         
         //---
-        string str = net.Coder.encode(code);
+        string str = common.Crypt.encode(code);
         field.text = str;
 
     }
@@ -48,7 +48,7 @@ public class GameCreateCode : MonoBehaviour {
         code += ""+itemListDropdown.value;
 
         //---
-        string str = net.Coder.encode(code);
+        string str = common.Crypt.encode(code);
         field.text = str;
 
     }

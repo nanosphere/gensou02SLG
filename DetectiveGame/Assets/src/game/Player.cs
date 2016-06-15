@@ -15,10 +15,11 @@ namespace game
         public int point = 0;
 
         public int murderer = 0;
-        public int state = 0;
+        public bool fdead = false;
         public int action = -1;
         public string selectName = "";
 
+        public string message = "";
 
         public void init()
         {
@@ -63,7 +64,11 @@ namespace game
 
         public int getSelectItem()
         {
-            return items[action];
+            if (0 <= action && action < items.Count)
+            {
+                return items[action];
+            }
+            return 0;
         }
     }
 }

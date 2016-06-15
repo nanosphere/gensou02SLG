@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Security.Cryptography;
 
-namespace net
+namespace common
 {
-    public class Coder
+    public class Crypt
     {
         public static string encode(string str)
         {

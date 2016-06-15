@@ -55,9 +55,9 @@ public class NextTurn : MonoBehaviour {
         foreach (var p in game.GameFactory.getGame().players)
         {
             s += p.name;
-            if(p.state != 0)
+            if(p.fdead)
             {
-                s += " " + p.state;
+                s += " dead";
             }
             s += "\n";
         }

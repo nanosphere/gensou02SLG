@@ -23,7 +23,7 @@ public class InputCode : MonoBehaviour
     /// </summary>
     public void OnClick()
     {
-        string s = net.Coder.dencode(input.text);
+        string s = common.Crypt.dencode(input.text);
         Logger.info("input code=" + s);
 
         var args = s.Split(',');

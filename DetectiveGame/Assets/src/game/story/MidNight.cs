@@ -21,6 +21,9 @@ namespace game.story
         
         public override void doit()
         {
+            List<Player> deadList = new List<Player>();
+            
+
             //殺人(殺人包丁
             Player p1 = null;
             foreach (var p in gm.players)
@@ -39,7 +42,12 @@ namespace game.story
                 // チェーンロックを使っているかどうか
                 if( opponent.getSelectItem() == 3)
                 {
-
+                    opponent.message = "何者かが近づいた気配があったが何も起こらなかった（襲撃がありました）";
+                }else
+                {
+                    //死亡
+                    opponent.fdead = true;
+                    deadList.Add(opponent);
                 }
                 
             }

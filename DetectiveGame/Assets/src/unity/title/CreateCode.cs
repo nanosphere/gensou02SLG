@@ -29,7 +29,7 @@ public class CreateCode : MonoBehaviour {
         game.GameFactory.getGame().info.player_name = nameField.text;
         string s = nameField.text;
 
-        string str = net.Coder.encode(s);
+        string str = common.Crypt.encode(s);
         field.text = str;
 
     }
