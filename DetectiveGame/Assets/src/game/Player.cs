@@ -8,15 +8,20 @@ namespace game
     public class Player
     {
         public string name = "";
+        public bool fnetWait = false;
 
         public List<int> items = new List<int>();
 
         public int openPoint = 0;
         public int point = 0;
 
-        public int murderer = 0;
+        public bool murderer = false;
+        public int murdererTurn = 0;
+        public int kill = 0;
         public bool fdead = false;
-        public int action = -1;
+        public string firstDiscoverer = "";
+
+        public int selectItem = -1;
         public string selectName = "";
 
         public string message = "";
@@ -64,11 +69,44 @@ namespace game
 
         public int getSelectItem()
         {
-            if (0 <= action && action < items.Count)
+            if (0 <= selectItem && selectItem < items.Count)
             {
-                return items[action];
+                return items[selectItem];
             }
             return 0;
         }
+
+        public void addMessage(string mess)
+        {
+            message += mess+"\n";
+        }
+        public void killSuccess()
+        {
+            kill += 1;
+            if (!murderer) {
+                // まーだーではない
+                murderer = true;
+                murdererTurn = 0;
+            }
+            else
+            {
+                //マーダーなら
+                murdererTurn = 0;
+            }
+
+        }
+        public void dead()
+        {
+            fdead = true;
+            firstDiscoverer = "";
+            selectItem = -1;
+        }
+        public void usedItem()
+        {
+            items.RemoveAt(selectItem);
+            selectItem = -1;
+            
+        }
+        
     }
 }

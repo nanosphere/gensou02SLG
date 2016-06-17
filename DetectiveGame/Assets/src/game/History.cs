@@ -7,6 +7,8 @@ namespace game
 {
     public class History
     {
-        
+        public void sync(History o)
+        {
+        }
     }
 }

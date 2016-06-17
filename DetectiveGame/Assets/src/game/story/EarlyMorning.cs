@@ -10,22 +10,20 @@ namespace game.story
     {
         public EarlyMorning(Game gm):base(gm)
         {
-
+            nextAction = () =>
+            {
+                doit1();
+            };
         }
         
-        public override void init()
-        {
-            
 
+        private void doit1()
+        {
+
+
+
+            nextAction = null;
         }
         
-        public override void doit()
-        {
-            
-        }
-        public override void onUpdate()
-        {
-
-        }
     }
 }

@@ -11,89 +11,37 @@ namespace game
     {
         public History history = new History();
 
-        public List<Player> players = new List<Player>();
+        public Players players = new Players();
         public List<int> item_pool = new List<int>();
-
         public SettingInfo info = new SettingInfo();
-
-        public int state = 0;
-        public int turn = 0;
 
         public string message = "";
 
+        public StoryManager story = new StoryManager();
+
+
         public void sync(Game o)
         {
-            foreach (var p in o.players)
-            {
-                if( isPlayer(p.name))
-                {
-                    p.sync(p);
-                }else
-                {
-                    Player p2 = new Player();
-                    p2.sync(p);
-                    players.Add(p2);
-                }
-            }
+            players.sync(o.players);
 
             item_pool.Clear();
             foreach(var s in o.item_pool)
             {
                 item_pool.Add(s);
             }
-            state = o.state;
-            turn = o.turn;
             info.sync(o.info);
-
+            story.sync(o.story);
+            history.sync(o.history);
         }
 
         //--------------------------------------------------------------
-        private AStory story = null;
-
-
-        public void addPlayer(string name)
-        {
-            if (isPlayer(name))
-            {
-                Logger.info("player is already.");
-                return;
-            }
-            var p = new Player();
-            p.name = name;
-
-            players.Add(p);
-
-        }
-
-        public bool isPlayer(string name)
-        {
-            foreach (var o in players)
-            {
-                if (o.name == name)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-        public Player getPlayer(string name)
-        {
-            foreach (var o in players)
-            {
-                if (o.name == name)
-                {
-                    return o;
-                }
-            }
-            return null;
-        }
-
+        
         //-------------------------------
         // init
         //-------------------------------
         public void init()
         {
-            int itemnum = players.Count * 4 - 1;
+            int itemnum = players.players.Count * 4 - 1;
             item_pool.Add(1);
 
             for (int i = 0; i < itemnum/2 ; i++)
@@ -114,9 +62,9 @@ namespace game
             }
             shuffle();
 
-            for(int i=0;i<players.Count; i++)
+            for(int i=0;i<players.players.Count; i++)
             {
-                Player p = players[i];
+                Player p = players.players[i];
                 p.init();
                 for (int j = 0; j < 4; j++)
                 {
@@ -124,64 +72,18 @@ namespace game
                 }
             }
 
-            setState(1);
+            story.setState(1);
             
         }
-        
-        public void setState(int state)
-        {
-            this.state = state;
-
-            if (state == 1){      story = new EarlyMorning(this); }
-            else if (state == 2){            }
-            else if (state == 3)
-            {
-            }
-            else if (state == 4)
-            {
-            }
-            else if (state == 5){ story = new MidNight(this); }
-
-
-            //turnの初期化
-            story.init();
-            
-        }
-        public void nextTurn()
-        {
-            // turnを進める
-            story.doit();
-
-            // 次へ
-            state += 1;
-            if(state >= 6)
-            {
-                state = 1;
-            }
-            setState(state);
-        }
-
-
-        public void onUpdate()
-        {
-            story.onUpdate();
-        }
-        
 
         //-------------------------------
-        // 
+        // update
         //-------------------------------
-        public string toState()
+        public void update()
         {
-            if (state == 1) return "早朝フェーズ";
-            if (state == 2) return "朝フェーズ";
-            if (state == 3) return "昼フェーズ";
-            if (state == 4) return "夜フェーズ";
-            if (state == 5) return "深夜フェーズ";
 
-            return "";
         }
-
+        
         //-------------------------------
         // シャッフル
         //-------------------------------

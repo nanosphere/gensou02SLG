@@ -9,14 +9,13 @@ namespace unity
 {
     public class UnityManager
     {
-        public void updateList()
+        public main.MainCamera mainCamera = null;
+
+        public void update()
         {
-            string s = "";
-            foreach( var p in game.GameFactory.getGame().players)
-            {
-                s += p.name + "\n";
-            }
-            GameObject.Find("Canvas/ListText").GetComponent<Text>().text = s;
+            if (mainCamera != null) mainCamera.updateMessage();
         }
+        
+
     }
 }

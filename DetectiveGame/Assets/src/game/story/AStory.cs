@@ -8,16 +8,26 @@ namespace game.story
 {
     public abstract class AStory
     {
+        protected delegate void nextActionFunc();
+        protected nextActionFunc nextAction=null;
+        public bool frun = false;
+
         protected Game gm;
-        public AStory(Game gm)
-        {
+        public AStory(Game gm){
             this.gm = gm;
         }
 
-        public abstract void init();
-        public abstract void doit();
-        public abstract void onUpdate();
+        public void update()
+        {
+            if (!frun) return;
 
+            // 処理
+            if(nextAction != null)
+            {
+                nextAction();
+            }
+        }
+        
 
     }
 }

@@ -12,6 +12,7 @@ namespace game
         //-----------------------
         private static Game gm = null;
         private static unity.UnityManager um = null;
+        private static net.NetworkManager nm = null;
 
         public static Game getGame()
         {
@@ -28,6 +29,14 @@ namespace game
                 um = new unity.UnityManager();
             }
             return um;
+        }
+        public static net.NetworkManager getNetworkManager()
+        {
+            if (nm == null)
+            {
+                nm = new net.NetworkManager();
+            }
+            return nm;
         }
     }
 }
