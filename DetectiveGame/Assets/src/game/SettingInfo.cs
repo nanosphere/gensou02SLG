@@ -21,6 +21,7 @@ namespace game
         {
             timer_minutes = o.timer_minutes;
             useKnife = o.useKnife;
+            dementDay = o.dementDay;
         }
     }
 }

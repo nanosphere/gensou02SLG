@@ -14,10 +14,10 @@ namespace game
         public Players players = new Players();
         public List<int> item_pool = new List<int>();
         public SettingInfo info = new SettingInfo();
-
+        
         public string message = "";
 
-        public StoryManager story = new StoryManager();
+        public story.StoryManager story = new story.StoryManager();
 
 
         public void sync(Game o)
@@ -33,9 +33,8 @@ namespace game
             story.sync(o.story);
             history.sync(o.history);
         }
-
         //--------------------------------------------------------------
-        
+
         //-------------------------------
         // init
         //-------------------------------
@@ -44,7 +43,7 @@ namespace game
             int itemnum = players.players.Count * 4 - 1;
             item_pool.Add(1);
 
-            for (int i = 0; i < itemnum/2 ; i++)
+            for (int i = 0; i < itemnum/2+2 ; i++)
             {
                 item_pool.Add(3);
             }
@@ -81,7 +80,7 @@ namespace game
         //-------------------------------
         public void update()
         {
-
+            story.update();
         }
         
         //-------------------------------

@@ -11,7 +11,6 @@ namespace game
 
         public void sync(Players o)
         {
-
             foreach (var p in o.players)
             {
                 if (isPlayer(p.name))
@@ -63,6 +62,11 @@ namespace game
                 }
             }
             return null;
+        }
+
+        public Player getMyPlayer()
+        {
+            return getPlayer(GameFactory.getGame().info.player_name);
         }
     }
 }

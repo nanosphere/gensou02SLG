@@ -5,7 +5,7 @@ using System.Text;
 using UnityEngine;
 using game.story;
 
-namespace game
+namespace game.story
 {
     public class StoryManager
     {
@@ -14,7 +14,6 @@ namespace game
         public int netState = 0;
 
         private AStory story = null;
-
         
         public void sync(StoryManager o)
         {
@@ -31,6 +30,7 @@ namespace game
         //-------------------------------
         public void update()
         {
+            
             if (story != null)
             {
                 story.update();
@@ -44,17 +44,18 @@ namespace game
         public void setState(int state)
         {
             this.state = state;
+            Logger.info("StoryManager.setState():state="+state);
 
-            if (state == 1){      story = new EarlyMorning(GameFactory.getGame()); }
-            else if (state == 2){            }
-            else if (state == 3)
-            {
-            }
-            else if (state == 4)
-            {
-            }
+            if (state == 1){       story = new EarlyMorning(GameFactory.getGame()); }
+            else if (state == 2) { story = new Morning(GameFactory.getGame()); }
+            else if (state == 3) { story = new Noon(GameFactory.getGame()); }
+            else if (state == 4) { story = new Night(GameFactory.getGame()); }
             else if (state == 5){ story = new MidNight(GameFactory.getGame()); }
-
+            else
+            {
+                story = null;
+            }
+            
 
             // messageをリセット
             foreach (var p in GameFactory.getGame().players.players)
@@ -78,6 +79,7 @@ namespace game
 
             // turnを進める
             story.frun = true;
+            
 
         }
 

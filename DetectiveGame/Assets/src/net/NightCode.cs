@@ -1,19 +1,21 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 namespace net
 {
-    public class SelectCode
+    public class NightCode
     {
-        public int item;
+        public bool fyes;
         public string name;
 
-        public void sync(SelectCode o)
+        public void sync(NightCode o)
         {
-            item = o.item;
+            fyes = o.fyes;
             name = o.name;
         }
     }
+
 }
 

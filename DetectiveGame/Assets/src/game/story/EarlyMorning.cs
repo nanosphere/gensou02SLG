@@ -13,15 +13,24 @@ namespace game.story
             nextAction = () =>
             {
                 doit1();
+                return true;
             };
         }
         
 
         private void doit1()
         {
+            //監禁解除
+            foreach (var p in gm.players.players)
+            {
+                p.fcaptivity = false;
+                p.killName = "";
+            }
+            
 
 
-
+            gm.message = "早朝フェイズです\n";
+            gm.message += "状況とアイテムが確認できたら進めるを押してください\n";
             nextAction = null;
         }
         

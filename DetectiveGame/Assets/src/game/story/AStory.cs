@@ -8,7 +8,7 @@ namespace game.story
 {
     public abstract class AStory
     {
-        protected delegate void nextActionFunc();
+        protected delegate bool nextActionFunc();
         protected nextActionFunc nextAction=null;
         public bool frun = false;
 
@@ -21,10 +21,16 @@ namespace game.story
         {
             if (!frun) return;
 
+            
+
             // 処理
-            if(nextAction != null)
+            if (nextAction != null)
             {
-                nextAction();
+                if( nextAction())
+                {
+                    GameFactory.getUnityManager().update();
+                }
+                
             }
         }
         
