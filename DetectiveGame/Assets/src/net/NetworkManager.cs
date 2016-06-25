@@ -1,9 +1,13 @@
 ﻿
 
+using System.Collections.Generic;
+
 namespace net
 {
     public class NetworkManager
     {
+        
+
         public void askPlayers()
         {
             // set
@@ -11,9 +15,6 @@ namespace net
             {
                 p.fnetWait = true;
             }
-            //送信
-            game.GameFactory.getUnityManager().mainCamera.CreateGameCode();
-
         }
         public bool isPlayerAllAck()
         {
@@ -29,52 +30,20 @@ namespace net
 
         public string createGameCode()
         {
-            return createCode("g", game.GameFactory.getGame());
+            return createCode(game.GameFactory.getGame().info.player_name, "g", game.GameFactory.getGame());
         }
-        public string createSelectCode(SelectCode select,string debugName)
+        public string createCode(object code)
         {
-            if(debugName != "")
-            {
-                return debug_createCode("i", select, debugName);
-            }
-            return createCode("i", select);
+            return createCode(game.GameFactory.getGame().info.player_name , getId(code), code);
         }
-        public string createNoonCode(NoonCode select, string debugName)
+        public string debug_createCode(object code, string debugName)
         {
-            if (debugName != "")
-            {
-                return debug_createCode("n", select, debugName);
-            }
-            return createCode("n",select);
+            return createCode(debugName, getId(code), code);
         }
-        public string createNightCode(NightCode select, string debugName)
-        {
-            if (debugName != "")
-            {
-                return debug_createCode("m", select, debugName);
-            }
-            return createCode("m", select);
-        }
-        public string createMidnightCode(MidnightCode select, string debugName)
-        {
-            if (debugName != "")
-            {
-                return debug_createCode("mid", select, debugName);
-            }
-            return createCode("mid", select);
-        }
-        private string createCode(string id,object obj)
+        private string createCode(string name , string id, object obj)
         {
             string code = id + "%";
-            code += game.GameFactory.getGame().info.player_name + "%";
-            code += common.JsonUtil.serialize(obj);
-            Logger.info("create code=" + code);
-            return common.Crypt.encode(code);
-        }
-        private string debug_createCode(string id, object obj,string debugname)
-        {
-            string code = id + "%";
-            code += debugname + "%";
+            code += name + "%";
             code += common.JsonUtil.serialize(obj);
             Logger.info("create code=" + code);
             return common.Crypt.encode(code);
@@ -90,10 +59,33 @@ namespace net
             var args = s.Split('%');
             if (args.Length != 4)
             {
-                Logger.error("code error.");
+                Logger.error("NetworkManager.setCode():code error.");
                 return;
             }
 
+            //-------------------------------
+            // player
+            //-------------------------------
+            if (args[0] == "p")
+            {
+                var o = common.JsonUtil.deserialize<AddPlayerCode>(args[2]);
+                game.GameFactory.getGame().players.addPlayer(o.name);
+
+                game.GameFactory.getUnityManager().update();
+                return;
+            }
+            else if (args[0] == "g")
+            {
+                game.Game g = common.JsonUtil.deserialize<game.Game>(args[2]);
+                game.GameFactory.getGame().sync(g);
+
+                game.GameFactory.getUnityManager().update();
+                return;
+            }
+
+            //-------------------------------
+            // player check
+            //-------------------------------
             var player = game.GameFactory.getGame().players.getPlayer(args[1]);
             if (player == null)
             {
@@ -102,45 +94,14 @@ namespace net
             }
 
             //-------------------------------
-            //結果
+            // set
             //-------------------------------
-            if (args[0] == "g")
+            if (!newCodeDeserialize(player, args[0], args[2]))
             {
-                game.Game g = common.JsonUtil.deserialize<game.Game>(args[2]);
-                game.GameFactory.getGame().sync(g);
+                Logger.error("NetworkManager.setCode():id is not found.");
+                return;
             }
-            else if (args[0] == "i")
-            {
-                SelectCode g = common.JsonUtil.deserialize<SelectCode>(args[2]);
-                
-                player.fnetWait = false;
-                player.select = g;
-            }
-            else if (args[0] == "n")
-            {
-                NoonCode g = common.JsonUtil.deserialize<NoonCode>(args[2]);
-
-                player.fnetWait = false;
-                player.noon = g;
-
-            }
-            else if (args[0] == "m")
-            {
-                NightCode g = common.JsonUtil.deserialize<NightCode>(args[2]);
-
-                player.fnetWait = false;
-                player.night = g;
-
-            }
-            else if (args[0] == "mid")
-            {
-                MidnightCode g = common.JsonUtil.deserialize<MidnightCode>(args[2]);
-
-                player.fnetWait = false;
-                player.midnight = g;
-
-            }
-
+            player.fnetWait = false;
 
             //-------------------------------
             game.GameFactory.getUnityManager().update();
@@ -148,6 +109,34 @@ namespace net
 
         }
 
+        private bool newCodeDeserialize(game.Player player, string id, string code)
+        {
+            if (id == "1") {      player.noon1 = common.JsonUtil.deserialize<NoonCode1>(code); }
+            else if (id == "2") { player.noon2 = common.JsonUtil.deserialize<NoonCode2>(code); }
+            else if (id == "3") { player.night1 = common.JsonUtil.deserialize<NightCode1>(code); }
+            else if (id == "4") { player.night2 = common.JsonUtil.deserialize<NightCode2>(code); }
+            else if (id == "5") { player.midnight1 = common.JsonUtil.deserialize<MidnightCode1>(code); }
+            else if (id == "6") { player.midnight2 = common.JsonUtil.deserialize<MidnightCode2>(code); }
+            else if (id == "7") { player.midnight3 = common.JsonUtil.deserialize<MidnightCode3>(code); }
+            else
+            {
+                return false;
+            }
+            return true;
+        }
+        private string getId(object code)
+        {
+            if (code is AddPlayerCode) return "p";
+            else if (code is NoonCode1) return "1";
+            else if (code is NoonCode2) return "2";
+            else if (code is NightCode1) return "3";
+            else if (code is NightCode2) return "4";
+            else if (code is MidnightCode1) return "5";
+            else if (code is MidnightCode2) return "6";
+            else if (code is MidnightCode3) return "7";
+            
 
+            return "";
+        }
     }
 }

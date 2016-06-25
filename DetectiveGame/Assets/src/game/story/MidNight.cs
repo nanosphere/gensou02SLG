@@ -8,26 +8,45 @@ namespace game.story
 {
     public class MidNight : AStory
     {
-        List<Player> deadlist = new List<Player>();
-        public MidNight(Game gm):base(gm)
+        public MidNight(Game gm,int state):base(gm)
         {
             nextAction = () =>
             {
-                return doit0();
+                
+                if (state==0) return doit0();
+                else if (state == 1) return doit1();
+                else if (state == 2) return doit2();
+                else if (state == 3) return doit3();
+
+                return true;
             };
 
         }
+        public override void init()
+        {
+            if (GameFactory.getUnityManager().midnight != null)
+            {
+                GameFactory.getUnityManager().midnight.updateDraw();
+            }
+        }
 
-        
         private bool doit0()
         {
-            gm.message = "深夜フェイズです\n";
-            gm.message = "使用するアイテムを選んでください";
-            GameFactory.getNetworkManager().askPlayers();
-            nextAction = () =>
+
+            // 初期化
+            foreach (var p in gm.players.players)
             {
-                return doit1();
-            };
+                p.killName = "";
+                p.fdeadToday = false;
+            }
+            gm.captivityName = "";
+
+
+            gm.midnightMessage = "";
+            gm.message = "深夜フェイズです\n";
+            gm.message += "使用するアイテムを選んでください";
+            GameFactory.getNetworkManager().askPlayers();
+            nextAction = null;
             return true;
         }
         private bool doit1()
@@ -35,12 +54,9 @@ namespace game.story
             if (!GameFactory.getNetworkManager().isPlayerAllAck()) return false;
 
             //監禁者はアイテム未使用
-            foreach (var p in gm.players.players)
+            if (gm.captivityName != "")
             {
-                if (p.fcaptivity)
-                {
-                    p.select.item = -1;
-                }
+                gm.players.getPlayer(gm.captivityName).midnight1.item = -1;
             }
 
 
@@ -54,7 +70,7 @@ namespace game.story
             if(murderer != null)
             {
                 // 殺人判定
-                kill(murderer,murderer.select.name,true);
+                kill(murderer,murderer.midnight1.name,true);
                 knifeNum += 1;
             }
 
@@ -67,9 +83,20 @@ namespace game.story
                 foreach (var p in gm.players.players)
                 {
                     var selectKnifePlayer = getSelectKnifePlayer(knifeList, p.name);
+                    if (selectKnifePlayer.Count == 0) continue;
+
                     //ランダム
                     int rand = MyRandom.rand(0, selectKnifePlayer.Count - 1);
-                    kill(selectKnifePlayer[rand], p.name,false);
+                    if (p == murderer && murderer.killName != "")
+                    {
+                        // 狂気の殺人包丁が成功していた場合は失敗
+                        selectKnifePlayer[rand].MidnightUsedItem();
+                        selectKnifePlayer[rand].addMessage(p.name + "さんの襲撃に失敗しました");
+                    }
+                    else
+                    {
+                        kill(selectKnifePlayer[rand], p.name, false);
+                    }
 
                     //選ばれなかった人
                     for (int i=0;i< selectKnifePlayer.Count;i++)
@@ -92,11 +119,9 @@ namespace game.story
             //殺人者のアイテム判定
             //----------------
             gm.message = "殺害に成功した人は拾うアイテムを選んでください(いない場合もあります)";
+            init();
             GameFactory.getNetworkManager().askPlayers();
-            nextAction = () =>
-            {
-                return doit2();
-            };
+            nextAction = null;
 
             return true;
         }
@@ -104,21 +129,23 @@ namespace game.story
         {
             if (!GameFactory.getNetworkManager().isPlayerAllAck()) return false;
 
+            var deadlist = getDeadPlayers();
+
             //----------------
             //殺人者のアイテム判定
             //----------------
             foreach (var p in deadlist)
             {
+                if (p.deadName == "") continue;
                 Player p2 = gm.players.getPlayer(p.deadName);
-                int index = 0;
-                foreach (var i in p2.midnight.items)
+
+                for (int i = 0; i < p2.midnight2.myItems.Count; i++)
                 {
-                    if (i.fyes)
-                    {
-                        p2.addItem(p.items[index]);
-                        p.items[index] = 0;
-                    }
-                    index++;
+                    p2.items[i] = p2.midnight2.myItems[i];
+                }
+                for (int i = 0; i < p2.midnight2.deadItems.Count; i++)
+                {
+                    p.items[i] = p2.midnight2.deadItems[i];
                 }
             }
 
@@ -131,11 +158,10 @@ namespace game.story
                 {
                     //ランダムで選ぶ
                     Player first = getRandomFirstDscoverer(p);
-                    p.firstDiscoverer = first.name;
-                }
-                else
-                {
-
+                    if (first != null)
+                    {
+                        p.firstDiscoverer = first.name;
+                    }
                 }
             }
             
@@ -144,17 +170,16 @@ namespace game.story
             //第一発見者処理(生き残った人間で分配)
             //----------------
             gm.message = "第1発見者は拾うアイテムを選んでください(いない場合もあります)";
+            init();
             GameFactory.getNetworkManager().askPlayers();
-            nextAction = () =>
-            {
-                return doit3();
-            };
-
+            nextAction = null;
             return true;
         }
         private bool doit3()
         {
             if (!GameFactory.getNetworkManager().isPlayerAllAck()) return false;
+
+            var deadlist = getDeadPlayers();
 
             //----------------
             //第一発見者処理(生き残った人間で分配)
@@ -163,15 +188,14 @@ namespace game.story
             {
                 if (p.firstDiscoverer == "") continue;
                 Player p2 = gm.players.getPlayer(p.firstDiscoverer);
-                int index = 0;
-                foreach (var i in p2.midnight.items)
+
+                for (int i = 0; i < p2.midnight2.myItems.Count; i++)
                 {
-                    if (i.fyes)
-                    {
-                        p2.addItem(p.items[index]);
-                        p.items[index] = 0;
-                    }
-                    index++;
+                    p2.items[i] = p2.midnight2.myItems[i];
+                }
+                for (int i = 0; i < p2.midnight2.deadItems.Count; i++)
+                {
+                    p.items[i] = p2.midnight2.deadItems[i];
                 }
             }
 
@@ -181,19 +205,19 @@ namespace game.story
             foreach (var p in gm.players.players)
             {
                 if (p.fdead) continue;
-                if (p.getSelectItem() != 5) continue;
+                if (p.getMidnightSelectItem() != 5) continue;
 
-                var target = gm.players.getPlayer(p.select.name);
+                var target = gm.players.getPlayer(p.midnight1.name);
                 if (target.fdead)
                 {
-                    p.addMessage(p.select.name + "さんの死因は"+target.deadReason+"です");
+                    p.addMessage(p.midnight1.name + "さんの死因は"+target.deadReason+"です");
                 }
                 else
                 {
-                    p.addMessage(p.select.name+"さんは死んでいません");
+                    p.addMessage(p.midnight1.name+"さんは死んでいません");
                 }
                 
-                p.usedItem();
+                p.MidnightUsedItem();
             }
 
             //----------------
@@ -202,15 +226,23 @@ namespace game.story
             foreach (var p in gm.players.players)
             {
                 if (p.fdead) continue;
-                if (p.getSelectItem() != 4) continue;
+                if (p.getMidnightSelectItem() != 4) continue;
 
-                var target = gm.players.getPlayer(p.select.name);
-                int rand = MyRandom.rand(0, target.items.Count-1 );
-                p.addMessage(p.select.name + "さんは " + target.getStrItem(rand) + " を持ち" + target.items.Count + "枚持っています");
-                
-                p.usedItem();
+                var target = gm.players.getPlayer(p.midnight1.name);
+                string randitem = target.getStrRandItem();
+                if (randitem == "")
+                {
+                    p.addMessage(p.midnight1.name + "さんはアイテムを持っていません");
+                }
+                else
+                {
+                    p.addMessage(p.midnight1.name + "さんは " + randitem + " を持ち" + target.getItems().Count + "枚持っています");
+                }
+
+                p.MidnightUsedItem();
             }
 
+            //---------------
 
             gm.message = "深夜フェイズが終わりました";
             nextAction = null;
@@ -229,7 +261,7 @@ namespace game.story
             //すでに死んでいる
             if(opponent.fdead)
             {
-                murderer.addMessage(name + "はすでに無残な死体で横たわっていた");
+                murderer.addMessage(name + "さんはすでに無残な死体で横たわっていた");
 
                 // 誰も見つけていない
                 if ( opponent.firstDiscoverer == "")
@@ -242,27 +274,49 @@ namespace game.story
             }
 
             // チェーンロックを使っているかどうか
-            if (opponent.getSelectItem() == 3)
+            if (opponent.getMidnightSelectItem() == 3)
             {
                 opponent.addMessage("何者かが扉を開けようとしたようだ（襲撃がありました）");
-                murderer.addMessage(name+"の殺害に失敗した");
-                murderer.usedItem();
+                murderer.addMessage(name+ "さんの殺害に失敗した");
+                murderer.MidnightUsedItem();
+            }
+            else if (murderer.getMidnightSelectItem() == 2 && 
+                opponent.getMidnightSelectItem() == 2 &&
+                opponent.midnight1.name == murderer.name)
+            {
+                //相手も自分を狙っているとき
+                murderer.addMessage(name + "さんを殺害した");
+                murderer.addMessage("あなたは殺された");
+                murderer.MidnightKillSuccess(opponent.name);
+                murderer.MidnightUsedItem();
+                murderer.MidnightDead(opponent.name, "包丁");
+                opponent.addMessage(murderer.name + "さんを殺害した");
+                opponent.addMessage("あなたは殺された");
+                opponent.MidnightKillSuccess(murderer.name);
+                opponent.MidnightUsedItem();
+                opponent.MidnightDead(murderer.name, "包丁");
             }
             else
             {
                 //死亡
-                murderer.addMessage(name+"を殺害した");
-                murderer.killSuccess(opponent.name);
-                murderer.usedItem();
+                murderer.addMessage(name+ "さんを殺害した");
+                murderer.MidnightKillSuccess(opponent.name);
+                murderer.MidnightUsedItem();
+                opponent.MidnightUsedItem();
                 if (fMurderer)
                 {
-                    opponent.dead(murderer.name, "狂気の殺人包丁");
+                    opponent.MidnightDead(murderer.name, "狂気の殺人包丁");
                 }else
                 {
-                    opponent.dead(murderer.name, "包丁");
+                    opponent.MidnightDead(murderer.name, "包丁");
+                    if (opponent.hasMurdererKnife())
+                    {
+                        murderer.additem(1);
+                        murderer.addMessage(name + "さんは狂気の殺人包丁を持っていた");
+                        murderer.addMessage("狂気の殺人包丁を手に入れた");
+                    }
                 }
                 opponent.addMessage("あなたは殺された");
-                deadlist.Add(opponent);
             }
         }
 
@@ -272,7 +326,7 @@ namespace game.story
             foreach (var p in gm.players.players)
             {
                 if (p.fdead) continue;
-                if (p.getSelectItem() == 1)
+                if (p.getMidnightSelectItem() == 1)
                 {
                     return p;
                 }
@@ -286,7 +340,7 @@ namespace game.story
             foreach (var p in gm.players.players)
             {
                 if (p.fdead) continue;
-                if (p.getSelectItem() == item)
+                if (p.getMidnightSelectItem() == item)
                 {
                     pl.Add(p);
                 }
@@ -309,7 +363,7 @@ namespace game.story
                 int rand = MyRandom.rand(0, knifeList.Count - 1);
                 knifeList[rand].addMessage("今夜は人の気配が多そうなのでやめよう");
                 knifeList[rand].addMessage("（狂気の殺人包丁または包丁を使った人が" + gm.info.useKnife + "人以上いました）");
-                knifeList[rand].usedItem();
+                knifeList[rand].MidnightUsedItem();
                 knifeList.RemoveAt(rand);
             }
             return knifeList;
@@ -320,7 +374,7 @@ namespace game.story
             List<Player> pl = new List<Player>();
             foreach(var p in knifeList)
             {
-                if(p.select.name == myName)
+                if(p.midnight1.name == myName)
                 {
                     pl.Add(p);
                 }
@@ -337,7 +391,24 @@ namespace game.story
             if (p.murdererTurn > gm.info.dementDay)
             {
                 p.addMessage("発狂死しました");
-                p.dead("","発狂死");
+                p.MidnightDead("","発狂死");
+                if (p.hasMurdererKnife())
+                {
+                    List<Player> pl = new List<Player>();
+                    foreach(var p2 in gm.players.players)
+                    {
+                        if (p2.fdead) continue;
+                        pl.Add(p2);
+                    }
+                    if (pl.Count != 0)
+                    {
+                        var p3 = pl[MyRandom.rand(0, pl.Count - 1)];
+                        if (!p3.additem(1))
+                        {
+                            p3.setItem(MyRandom.rand(0, p3.items.Length-1), 1);
+                        }
+                    }
+                }
             }
         }
         // ランダムで第1発見者を返す
@@ -354,8 +425,22 @@ namespace game.story
                 pl.Add(p);
             }
 
+            if (pl.Count == 0) return null;
             int rand = MyRandom.rand(0, pl.Count - 1);
             return pl[rand];
+        }
+
+        // 死んだプレイヤーを返す
+        private List<Player> getDeadPlayers()
+        {
+            List<Player> pl = new List<Player>();
+            foreach (var p in gm.players.players)
+            {
+                if (p.fdeadToday) {
+                    pl.Add(p);
+                }
+            }
+            return pl;
         }
 
     }

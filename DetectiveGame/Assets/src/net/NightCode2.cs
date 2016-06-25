@@ -5,14 +5,12 @@ using System.Collections.Generic;
 
 namespace net
 {
-    public class NightCode
+    public class NightCode2
     {
-        public bool fyes;
         public string name;
 
-        public void sync(NightCode o)
+        public void sync(NightCode2 o)
         {
-            fyes = o.fyes;
             name = o.name;
         }
     }

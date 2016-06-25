@@ -11,6 +11,7 @@ using System.Text;
 public class Logger {
 	public Logger(){
 	}
+    public static bool funity = true;
 
     //---------------------------------------------------
     // print
@@ -20,8 +21,8 @@ public class Logger {
     {
         string s = "[" + severiry + "]" + str;
 
-		Console.WriteLine(s);	//一般C#用
-		UnityUtility.DebugLog(s);	//一般C#用
+		Console.WriteLine(s);   //一般C#用
+        if(funity)UnityUtility.DebugLog(s);
 
     }
 

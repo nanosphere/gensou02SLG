@@ -22,9 +22,6 @@ public class UnityUtility
 		//EditorUtility.DisplayDialog("Information", s, "OK");
 		Debug.LogError(s);
 	}
-	public static string getConfigUrl(){
-		return Application.dataPath + @"/../LCG_config.ini";
-	}
 
 }
 

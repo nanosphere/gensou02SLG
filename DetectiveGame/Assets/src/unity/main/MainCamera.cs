@@ -8,11 +8,7 @@ namespace unity.main
     public class MainCamera : MonoBehaviour
     {
         InputField inputCodeField;
-        InputField createCodeField;
-        Dropdown itemListDropdown;
-        Dropdown playerListDropdown;
-        Dropdown nightPlayerListDropdown;
-        Dropdown YesNoBox;
+        public InputField createCodeField;
 
 
         Dropdown debugPlayerListDropdown =null;
@@ -21,18 +17,13 @@ namespace unity.main
         void Start()
         {
             game.GameFactory.getUnityManager().mainCamera = this;
-
-            inputCodeField = GameObject.Find("Canvas/InputCode").GetComponent<InputField>();
-            createCodeField = GameObject.Find("Canvas/CreateCode/CodeField").GetComponent<InputField>();
-            itemListDropdown = GameObject.Find("Canvas/CreateCode/ItemList").GetComponent<Dropdown>();
-            playerListDropdown = GameObject.Find("Canvas/CreateCode/PlayerList").GetComponent<Dropdown>();
-            nightPlayerListDropdown = GameObject.Find("Canvas/NightPlayerList").GetComponent<Dropdown>();
-            YesNoBox = GameObject.Find("Canvas/YesNoBox").GetComponent<Dropdown>();
-
-            GameObject.Find("Canvas/PlayerName").GetComponent<Text>().text = game.GameFactory.getGame().info.player_name;
             
+            inputCodeField = GameObject.Find("Canvas/Code/InputCode").GetComponent<InputField>();
+            createCodeField = GameObject.Find("Canvas/Code/CodeField").GetComponent<InputField>();
+           
+
             // debug
-            debugPlayerListDropdown = GameObject.Find("Canvas/DebugSelectPlayerList").GetComponent<Dropdown>();
+            //debugPlayerListDropdown = GameObject.Find("Canvas/DebugSelectPlayerList").GetComponent<Dropdown>();
             //game.GameFactory.getGame().players.addPlayer(game.GameFactory.getGame().info.player_name);
             //game.GameFactory.getGame().players.addPlayer("p1");
             //game.GameFactory.getGame().players.addPlayer("p2");
@@ -41,7 +32,7 @@ namespace unity.main
 
             // init
             game.GameFactory.getGame().init();
-            updateMessage();
+            updateDraw();
             
 
         }
@@ -61,106 +52,81 @@ namespace unity.main
         {
             game.GameFactory.getNetworkManager().setCode(inputCodeField.text);
             inputCodeField.text = "";
+            updateDraw();
         }
         public void CreateGameCode()
         {
             createCodeField.text = game.GameFactory.getNetworkManager().createGameCode();
+            updateDraw();
         }
-        public void CreateSelectCode()
-        {
-            net.SelectCode select = new net.SelectCode();
-            select.item = itemListDropdown.value - 1;
-            select.name = playerListDropdown.captionText.text;
 
-            if (debugPlayerListDropdown == null)
-            {
-                createCodeField.text = game.GameFactory.getNetworkManager().createSelectCode(select, "");
-            }else
-            {
-                createCodeField.text = game.GameFactory.getNetworkManager().createSelectCode(select, debugPlayerListDropdown.captionText.text);
-            }
-        }
         public void onClickNextTurn()
         {
-            
+            if (!game.GameFactory.getGame().info.fhost) return;
             game.GameFactory.getGame().story.nextTurn();
-            updateMessage();
-        }
-        public void CreateNightCode()
-        {
-            net.NightCode code = new net.NightCode();
-            code.fyes = (YesNoBox.value == 1);
-            code.name = nightPlayerListDropdown.captionText.text;
-
-
-            if (debugPlayerListDropdown == null)
-            {
-                createCodeField.text = game.GameFactory.getNetworkManager().createNightCode(code, "");
-            }
-            else
-            {
-                createCodeField.text = game.GameFactory.getNetworkManager().createNightCode(code, debugPlayerListDropdown.captionText.text);
-            }
+            updateDraw();
         }
 
         //=====================================
         // state
         //=====================================
-        public void updateMessage()
+        public void updateDraw()
         {
-            GameObject.Find("Canvas/TextState").GetComponent<Text>().text = 
-                game.GameFactory.getGame().story.toState();
-
-            game.Player myp = game.GameFactory.getGame().players.getMyPlayer();
-            GameObject.Find("Canvas/Message").GetComponent<Text>().text = game.GameFactory.getGame().message;
-            GameObject.Find("Canvas/Message2").GetComponent<Text>().text = myp.message;
-
-            
-            game.GameFactory.getUnityManager().midnight.updateMessage();
-
+            GameObject.Find("Canvas/GameInfo/PlayerName").GetComponent<Text>().text = game.GameFactory.getGame().info.player_name;
+            GameObject.Find("Canvas/GameInfo/TextState").GetComponent<Text>().text = game.GameFactory.getGame().story.toState();
             updateItemList();
             updatePlayerList();
+            game.Player myp = game.GameFactory.getGame().players.getMyPlayer();
+            GameObject.Find("Canvas/GameInfo/Message").GetComponent<Text>().text = game.GameFactory.getGame().message;
+            GameObject.Find("Canvas/GameInfo/Message2").GetComponent<Text>().text = myp.message;
+            GameObject.Find("Canvas/GameInfo/MidnightMessage").GetComponent<Text>().text = game.GameFactory.getGame().midnightMessage;
+
+            
         }
 
         private void updateItemList()
         {
             game.Player myp = game.GameFactory.getGame().players.getMyPlayer();
-            List<string> items = myp.getStrItemList();
+            string s = "";
+            for (int i=0;i<myp.items.Length;i++)
+            {
+                s += myp.getStrItem(i) + "\n";
+            }
+            GameObject.Find("Canvas/GameInfo/ItemList").GetComponent<Text>().text = s;
             
-            game.GameFactory.getUnityManager().createDropdown(itemListDropdown,items,true);
-            GameObject.Find("Canvas/ItemList").GetComponent<Text>().text = myp.toItems();
-
         }
         private void updatePlayerList()
         {
+            //深夜は更新しない
+            if (game.GameFactory.getGame().story.state > 9)
+            {
+                return;
+            }
+
             string s = "";
             foreach (var p in game.GameFactory.getGame().players.players)
             {
 
                 s += p.name;
-                if (p.fdead)
-                {
-                    s += " dead";
-                }
                 if (!p.fnetWait)
                 {
                     s += " selected";
                 }
+
+                if (p.fdead)
+                {
+                    s += " dead";
+                }
+                
+                
+                if (game.GameFactory.getGame().captivityName == p.name)
+                {
+                    s += " 監禁中";
+                }
                 s += "\n";
             }
-            GameObject.Find("Canvas/PlayerList").GetComponent<Text>().text = s;
-
-            List<string> items = new List<string>();
-            foreach (var p in game.GameFactory.getGame().players.players)
-            {
-                items.Add(p.name);
-            }
+            GameObject.Find("Canvas/GameInfo/PlayerList").GetComponent<Text>().text = s;
             
-            game.GameFactory.getUnityManager().createDropdown(nightPlayerListDropdown, items, true);
-            game.GameFactory.getUnityManager().createDropdown(playerListDropdown, items, true);
-            game.GameFactory.getUnityManager().createDropdown(debugPlayerListDropdown, items, true);
-            
-
         }
 
     }

@@ -8,31 +8,38 @@ namespace game.story
 {
     public class Night : AStory
     {
-        public Night(Game gm):base(gm)
+        public Night(Game gm,int state):base(gm)
         {
             nextAction = () =>
             {
-                doit1();
-                return true;
+                
+
+                if (state == 0) return doit1();
+                if (state == 1) return doit2();
+                if (state == 2) return doit3();
+
+                return false;
             };
             
         }
-        
-
-        private void doit1()
+        public override void init()
         {
-            //選択しの作成
-            GameFactory.getUnityManager().noon.create();
+            if (GameFactory.getUnityManager().night != null)
+            {
+                GameFactory.getUnityManager().night.updateDraw();
+            }
+        }
+
+        private bool doit1()
+        {
+            
 
             gm.message = "夜フェイズです\n";
-            gm.message += "監禁ターンです\n";
-            gm.message += "監禁するかしないかを選択してコードをGMに送ってください\n";
+            gm.message += "誰を監禁するか話し合った後に監禁するかしないかを選択してコードをGMに送ってください\n";
 
             GameFactory.getNetworkManager().askPlayers();
-            nextAction = () =>
-            {
-                return doit2();
-            };
+            nextAction = null;
+            return true;
             
         }
         private bool doit2()
@@ -43,7 +50,7 @@ namespace game.story
             int no = 0;
             foreach (var p in gm.players.players)
             {
-                if(p.night.fyes)
+                if(p.night1.fyes)
                 {
                     yes++;
                 }else
@@ -61,22 +68,29 @@ namespace game.story
                 gm.message += "監禁するまたは無投票を選択してコードをGMに送ってください\n";
                 //
                 GameFactory.getNetworkManager().askPlayers();
-                nextAction = () =>
-                {
-                    return doit3();
-                };
+                nextAction = null;
+                gm.fcapativity = true;
+
             }
             else
             {
                 gm.message += "監禁しないに決まりました\n";
-                gm.message += "深夜フェーズに移動します\n";
                 nextAction = null;
+                gm.fcapativity = false;
             }
 
+            nextAction = null;
             return true;
         }
         private bool doit3()
         {
+
+            if ( !gm.fcapativity )
+            {
+                gm.message += "skipします。次のターンを押してください\n";
+                nextAction = null;
+                return true;
+            }
             if (!GameFactory.getNetworkManager().isPlayerAllAck()) return false;
 
             // 投票結果
@@ -87,7 +101,8 @@ namespace game.story
             }
             foreach (var p in gm.players.players)
             {
-                result[p.night.name]++;
+                if (p.night2.name == "") continue;
+                result[p.night2.name]++;
             }
             // 結果
             gm.message = "投票結果（同数の場合はランダムです）\n";
@@ -98,7 +113,7 @@ namespace game.story
                 {
                     max = result[p.name];
                 }
-                gm.message = p.name +"："+ result[p.name] + "票\n";
+                gm.message += p.name +"："+ result[p.name] + "票\n";
             }
             List<Player> pl = new List<Player>();
             foreach (var p in gm.players.players)
@@ -112,8 +127,9 @@ namespace game.story
             // 同数の場合はランダム
             int rand = MyRandom.rand(0,pl.Count-1);
             gm.message += pl[rand].name + "さんは監禁されました\n";
-            pl[rand].fcaptivity = true;
+            gm.captivityName = pl[rand].name;
 
+            gm.message += "夜フェーズは終了です\n";
             nextAction = null;
             return true;
         }

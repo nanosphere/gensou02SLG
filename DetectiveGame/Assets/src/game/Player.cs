@@ -7,11 +7,11 @@ namespace game
 {
     public class Player
     {
+        // global
         public string name = "";
-        public bool fnetWait = false;
-
-        public List<int> items = new List<int>();
+        public int[] items;
         
+        // flag
         public bool murderer = false;
         public int murdererTurn = 0;
         public int kill = 0;
@@ -20,23 +20,30 @@ namespace game
         public string deadName = "";
         public string deadReason = "";
         public string firstDiscoverer = "";
-        public bool fcaptivity = false;
+        public bool fdeadToday = false;
 
-        public net.SelectCode select=null;
-        public net.NoonCode noon = null;
-        public net.NightCode night = null;
-        public net.MidnightCode midnight = null;
+        // net
+        public bool fnetWait = false;
+        public net.NoonCode1 noon1 = new net.NoonCode1();
+        public net.NoonCode2 noon2 = new net.NoonCode2();
+        public net.NightCode1 night1 = new net.NightCode1();
+        public net.NightCode2 night2 = new net.NightCode2();
+        public net.MidnightCode1 midnight1 = new net.MidnightCode1();
+        public net.MidnightCode2 midnight2 = new net.MidnightCode2();
+        public net.MidnightCode3 midnight3 = new net.MidnightCode3();
 
         public string message = "";
 
         public void sync(Player o)
         {
+            message = o.message;
             name = o.name;
             fnetWait = o.fnetWait;
-            items.Clear();
-            foreach(var s in o.items)
+            fdeadToday = o.fdeadToday;
+            items = new int[o.items.Length];
+            for(int i=0;i<o.items.Length;i++)
             {
-                items.Add(s);
+                items[i] = o.items[i];
             }
             murderer = o.murderer;
             murdererTurn = o.murdererTurn;
@@ -45,17 +52,15 @@ namespace game
             deadName = o.deadName;
             deadReason = o.deadReason;
             firstDiscoverer = o.firstDiscoverer;
-            fcaptivity = o.fcaptivity;
-            if (o.select != null && select == null) select = new net.SelectCode();
-            if (select != null) select.sync(o.select);
-            if (o.noon != null && noon == null) noon = new net.NoonCode();
-            if (noon != null) noon.sync(o.noon);
+            noon1.sync(o.noon1);
+            noon2.sync(o.noon2);
+            night1.sync(o.night1);
+            night2.sync(o.night2);
+            midnight1.sync(o.midnight1);
+            midnight2.sync(o.midnight2);
+            midnight3.sync(o.midnight3);
 
-            if (o.night != null && night == null) night = new net.NightCode();
-            if (night != null) night.sync(o.night);
-            if (o.midnight != null && midnight == null) midnight = new net.MidnightCode();
-            if (midnight != null) midnight.sync(o.midnight);
-            
+
         }
         public string toLine()
         {
@@ -72,18 +77,6 @@ namespace game
             s += " kill=" + kill;
             s += " fdead=" + fdead;
             s += " firstDis=" + firstDiscoverer;
-            if (select != null)
-            {
-                s += " select=" + select.item + "," + select.name;
-            }
-            if (noon != null)
-            {
-                s += " noon=";
-                foreach(var p in noon.players)
-                {
-                    s += "[" + p.name + "," + p.item + "]";
-                }
-            }
 
             return s;
         }
@@ -94,15 +87,28 @@ namespace game
         public void init()
         {
             // 処理 はしります
+            items = new int[GameFactory.getGame().info.max_item];
         }
         //-----------------------------------------
         // item
         //-----------------------------------------
-        public void addItem(int item)
+        public void setItem(int index,int item)
         {
-            items.Add(item);
+            items[index] = item;
         }
-        
+        public bool additem(int item)
+        {
+            for(int i=0;i<items.Length;i++)
+            {
+                if( items[i] <= 0)
+                {
+                    items[i] = item;
+                    return true;
+                }
+            }
+            Logger.info("Player.setItem():item set is fail. item="+item);
+            return false;
+        }
 
         public string toItems()
         {
@@ -125,41 +131,71 @@ namespace game
 
             return "";
         }
-        public List<string> getStrItemList()
+        public static int intItem(string item)
         {
-            List<string> itemsstr = new List<string>();
-            itemsstr.Add("何もなし");
+            if (item == "狂気の殺人包丁") return 1;
+            if (item == "包丁") return 2;
+            if (item == "チェーンロック") return 3;
+            if (item == "探知機") return 4;
+            if (item == "検死キット") return 5;
 
-            int j = 0;
-            foreach (var item in items)
-            {
-                itemsstr.Add("" + j + "." + Player.strItem(item) );
-                j++;
-            }
-            return itemsstr;
+            return -1;
         }
+
         public string getStrItem(int index)
         {
-            if (0 <= index && index < items.Count)
+            if (0 <= index && index < items.Length)
             {
-                return Player.strItem(items[index]);
+                return strItem(items[index]);
             }
             return "";
         }
-        public int getSelectItem()
+        public void addMessage(string mess)
         {
-            if (0 <= getSelectItemIndex() && getSelectItemIndex() < items.Count)
+            message += mess + "\n";
+        }
+        public List<int> getItems()
+        {
+            List<int> items2 = new List<int>();
+            foreach (var item in items)
             {
-                return items[getSelectItemIndex()];
+                if (item > 0)
+                {
+                    items2.Add(item);
+                }
+            }
+            return items2;
+        }
+        //----------------------------------------------------------------
+        public string getStrRandItem()
+        {
+            List<int> items2 = getItems();
+            if (items2.Count == 0) return "";
+
+            int rand = MyRandom.rand(0, items2.Count - 1);
+            return strItem( items2[rand]);
+        }
+        
+        //----------------------------------------------------------------
+        public int getNoonSelectItem()
+        {
+            if (0 <= noon1.item && noon1.item < items.Length)
+            {
+                return items[noon1.item];
             }
             return 0;
         }
 
-        public void addMessage(string mess)
+        public int getMidnightSelectItem()
         {
-            message += mess+"\n";
+            if (0 <= midnight1.item && midnight1.item < items.Length)
+            {
+                return items[midnight1.item];
+            }
+            return 0;
         }
-        public void killSuccess(string name)
+        
+        public void MidnightKillSuccess(string name)
         {
             killName = name;
             kill += 1;
@@ -173,32 +209,36 @@ namespace game
                 //マーダーなら
                 murdererTurn = 0;
             }
-
         }
-        public void dead(string name,string reason)
+        public bool hasMurdererKnife()
+        {
+            foreach(var item in items)
+            {
+                if (item == 1) return true;
+            }
+            return false;
+        }
+        public void MidnightDead(string name,string reason)
         {
             fdead = true;
             deadName = name;
             deadReason = reason;
             firstDiscoverer = "";
-            select = null;
+            fdeadToday = true;
+            midnight1.item = -1;
         }
-        public void usedItem()
+        public void MidnightUsedItem()
         {
-            if (getSelectItemIndex() == -1) return;
+            if ( midnight1.item == -1) return;
 
             // 狂気の殺人包丁
-            if (getSelectItemIndex() != 1)
+            if (getMidnightSelectItem() != 1)
             {
-                items.RemoveAt(getSelectItemIndex());
+                items[midnight1.item] = 0;
             }
-            select = null;
+            midnight1.item = -1;
             
         }
-        public int getSelectItemIndex()
-        {
-            if (select == null) return -1;
-            return select.item;
-        }
+
     }
 }

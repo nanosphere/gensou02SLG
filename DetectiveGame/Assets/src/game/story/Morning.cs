@@ -16,13 +16,15 @@ namespace game.story
                 return true;
             };
         }
-        
 
+        public override void init()
+        {
+        }
         private void doit1()
         {
 
             gm.message = "朝フェイズです\n";
-            gm.message += "状況について話してください\n";
+            gm.message += "今朝の状況とアイテム交換について話してください\n";
             nextAction = null;
         }
         

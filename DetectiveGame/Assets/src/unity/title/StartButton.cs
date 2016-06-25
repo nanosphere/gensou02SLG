@@ -28,6 +28,12 @@ namespace unity.title
         /// </summary>
         public void OnClick()
         {
+            game.GameFactory.getGame().info.player_name = GameObject.Find("Canvas/NameField").GetComponent<InputField>().text;
+            game.GameFactory.getGame().info.fhost = ( GameObject.Find("Canvas/Host").GetComponent<Dropdown>().value == 1 );
+
+            var p = game.GameFactory.getGame().players.getMyPlayer();
+            if (p == null) return;
+            
             SceneManager.LoadScene("game");
 
         }

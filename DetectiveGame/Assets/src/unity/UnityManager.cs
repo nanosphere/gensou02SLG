@@ -11,15 +11,19 @@ namespace unity
     {
         public main.MainCamera mainCamera = null;
         public main.Noon noon = null;
+        public main.Night night = null;
         public main.Midnight midnight = null;
+        public title.MainCamera title = null;
+
 
         public void update()
         {
-            if (mainCamera != null) mainCamera.updateMessage();
+            if (mainCamera != null) mainCamera.updateDraw();
         }
         
         public void createDropdown(Dropdown drop,List<string> items,bool freset)
         {
+            if (drop == null) return;
             drop.options.Clear();
             foreach (var item in items)
             {
@@ -31,6 +35,17 @@ namespace unity
                 drop.value = 0;
             }
         }
+
+        public void createPlayerDropdown(Dropdown drop)
+        {
+            List<string> items = new List<string>();
+            foreach (var p in game.GameFactory.getGame().players.players)
+            {
+                items.Add(p.name);
+            }
+            game.GameFactory.getUnityManager().createDropdown(drop, items, true);
+        }
     }
-    
 }
+
+

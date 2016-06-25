@@ -8,54 +8,47 @@ namespace unity.title
     {
         InputField field;
         InputField nameField;
-
+        InputField inputCodeField;
+        Text listtext;
 
         // Use this for initialization
         void Start()
         {
+            game.GameFactory.getUnityManager().title = this;
+
             field = GameObject.Find("Canvas/CodeField").GetComponent<InputField>();
             nameField = GameObject.Find("Canvas/NameField").GetComponent<InputField>();
+            inputCodeField = GameObject.Find("Canvas/InputCode").GetComponent<InputField>();
+            listtext = GameObject.Find("Canvas/ListText").GetComponent<Text>();
+
         }
 
 
         // Update is called once per frame
         void Update()
         {
-            
-        }
-
-
-
-        /// <summary>
-        /// clickされたら
-        /// </summary>
-        public void OnClick()
-        {
-            game.GameFactory.getGame().info.player_name = nameField.text;
-            string s = nameField.text;
-
-            string str = common.Crypt.encode(s);
-            field.text = str;
+            string s = "";
+            foreach (var p in game.GameFactory.getGame().players.players)
+            {
+                s += p.name + "\n";
+            }
+            listtext.text = s;
 
         }
 
 
-        /*
-        /// <summary>
-        /// clickされたら
-        /// </summary>
-        public void OnClick()
+
+        public void CreateGameCode()
         {
-            string s = common.Crypt.dencode(input.text);
-            Logger.info("input code=" + s);
-
-            var args = s.Split(',');
-
-            game.GameFactory.getGame().addPlayer(args[0]);
-            game.GameFactory.getUnityManager().updateList();
-
-
-            input.text = "";
-        }*/
+            var o = new net.AddPlayerCode();
+            o.name = nameField.text;
+            field.text = game.GameFactory.getNetworkManager().createCode(o);
+        }
+        public void InputCode()
+        {
+            game.GameFactory.getNetworkManager().setCode(inputCodeField.text);
+            inputCodeField.text = "";
+        }
+        
     }
 }

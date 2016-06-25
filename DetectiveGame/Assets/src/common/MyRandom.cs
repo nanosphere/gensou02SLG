@@ -13,6 +13,7 @@ public class MyRandom
     }
     public static int rand(int min,int max)
     {
+        if (max <= min) return 0;
         return cRandom.Next(min,max);
     }
 }

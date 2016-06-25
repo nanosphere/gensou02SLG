@@ -9,21 +9,26 @@ namespace game
 {
     public class Game
     {
+        public story.StoryManager story = new story.StoryManager();
         public History history = new History();
 
         public Players players = new Players();
         public List<int> item_pool = new List<int>();
         public SettingInfo info = new SettingInfo();
-        
+
         public string message = "";
+        public string midnightMessage = "";
 
-        public story.StoryManager story = new story.StoryManager();
-
+        public string captivityName = "";
+        public bool fcapativity = false;
 
         public void sync(Game o)
         {
+            captivityName = o.captivityName;
+            fcapativity = o.fcapativity;
             players.sync(o.players);
-
+            message = o.message;
+            midnightMessage = o.midnightMessage;
             item_pool.Clear();
             foreach(var s in o.item_pool)
             {
@@ -40,39 +45,40 @@ namespace game
         //-------------------------------
         public void init()
         {
-            int itemnum = players.players.Count * 4 - 1;
-            item_pool.Add(1);
+            initItemPool();
 
-            for (int i = 0; i < itemnum/2+2 ; i++)
-            {
-                item_pool.Add(3);
-            }
-            for (int i = 0; i < itemnum/4; i++)
-            {
-                item_pool.Add(2);
-            }
-            for (int i = 0; i < itemnum/4; i++)
-            {
-                item_pool.Add(4);
-            }
-            for (int i = 0; i < itemnum/4; i++)
-            {
-                item_pool.Add(5);
-            }
-            shuffle();
-
-            for(int i=0;i<players.players.Count; i++)
+            for (int i=0;i<players.players.Count; i++)
             {
                 Player p = players.players[i];
                 p.init();
                 for (int j = 0; j < 4; j++)
                 {
-                    p.addItem(item_pool[i*4+j] );
+                    p.setItem(j,item_pool[i*4+j] );
                 }
             }
 
-            story.setState(1);
-            
+            story.setState(1,true);
+        }
+        private void initItemPool()
+        {
+            info.totalItem.Clone();
+            for (int j = 0; j < info.totalItem.Length; j++)
+            {
+                for (int i = 0; i < info.totalItem[j]; i++)
+                {
+                    item_pool.Add(j+1);
+                }
+            }
+
+            //足りない分
+            int itemnum = players.players.Count * 4;
+            for(int i=item_pool.Count; i<itemnum; i++)
+            {
+                item_pool.Add( MyRandom.rand(3,5));
+            }
+
+            shuffle();
+
         }
 
         //-------------------------------

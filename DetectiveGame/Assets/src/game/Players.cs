@@ -11,17 +11,18 @@ namespace game
 
         public void sync(Players o)
         {
-            foreach (var p in o.players)
+            foreach (var p2 in o.players)
             {
-                if (isPlayer(p.name))
+                var p = getPlayer(p2.name);
+                if (p != null)
                 {
-                    p.sync(p);
+                    p.sync(p2);
                 }
                 else
                 {
-                    Player p2 = new Player();
-                    p2.sync(p);
-                    players.Add(p2);
+                    p = new Player();
+                    p.sync(p2);
+                    players.Add(p);
                 }
             }
 
@@ -40,7 +41,6 @@ namespace game
             players.Add(p);
 
         }
-
         public bool isPlayer(string name)
         {
             foreach (var o in players)

@@ -10,6 +10,7 @@ namespace game.story
     {
         protected delegate bool nextActionFunc();
         protected nextActionFunc nextAction=null;
+
         public bool frun = false;
 
         protected Game gm;
@@ -17,21 +18,22 @@ namespace game.story
             this.gm = gm;
         }
 
+        public abstract void init();
+
         public void update()
         {
-            if (!frun) return;
-
-            
+            if (!frun) return ;
 
             // 処理
             if (nextAction != null)
             {
-                if( nextAction())
+                if (nextAction())
                 {
                     GameFactory.getUnityManager().update();
                 }
-                
+
             }
+            return ;
         }
         
 
