@@ -22,7 +22,7 @@ namespace game.story
             turn = o.turn;
             netState = o.netState;
 
-            setState(state,true);
+            setState(state);
         }
         
 
@@ -31,6 +31,8 @@ namespace game.story
         //-------------------------------
         public void update()
         {
+            if (!GameFactory.getGame().info.fhost) return;
+
             if (story != null)
             {
                 story.update();
@@ -41,7 +43,7 @@ namespace game.story
         //-------------------------------
         // set
         //-------------------------------
-        public void setState(int state,bool frun)
+        public void setState(int state)
         {
             this.state = state;
             Logger.info("StoryManager.setState():state="+state);
@@ -67,7 +69,7 @@ namespace game.story
                 story = null;
             }
             
-            if (story != null && frun)
+            if (story != null)
             {
                 // turnを進める
                 story.frun = true;
@@ -85,7 +87,7 @@ namespace game.story
                 turn += 1;
                 state = 1;
             }
-            setState(state,true);
+            setState(state);
 
 
             // messageをリセット

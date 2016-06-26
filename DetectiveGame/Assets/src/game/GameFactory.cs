@@ -14,7 +14,6 @@ namespace game
         private static unity.UnityManager um = null;
         private static net.NetworkManager nm = null;
 
-        
         public static void initFacroty()
         {
             gm = null;

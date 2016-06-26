@@ -102,6 +102,7 @@ namespace unity.main
         //=====================================
         public void CreateCode()
         {
+            string s = "";
             if (game.GameFactory.getGame().story.state == 9){       CreateCode1();  }
             else if (game.GameFactory.getGame().story.state == 10) { CreateCode2(); }
             else if (game.GameFactory.getGame().story.state == 11) { CreateCode2(); }
@@ -109,16 +110,19 @@ namespace unity.main
             {
                 Logger.info("Midnight.CreateCode():error state. state=" + game.GameFactory.getGame().story.state);
             }
-
+            if (s != "")
+            {
+                game.GameFactory.getUnityManager().mainCamera.createCodeField.text = s;
+            }
         }
-        private void CreateCode1()
+        private string CreateCode1()
         {
             net.MidnightCode1 code = new net.MidnightCode1();
             code.item = itemListDropdown.value - 1;
             code.name = playerListDropdown.captionText.text;
-            game.GameFactory.getUnityManager().mainCamera.createCodeField.text = game.GameFactory.getNetworkManager().createCode(code);
+            return game.GameFactory.getNetworkManager().createCode(code);
         }
-        private void CreateCode2()
+        private string CreateCode2()
         {
             net.MidnightCode2 code = new net.MidnightCode2();
             if (objs[0].transform.FindChild("Item").GetComponent<Text>().text != "")
@@ -140,14 +144,29 @@ namespace unity.main
 
                     i++;
                 }
-                if (code.deadItems.Count != 4) return;
-                if (code.myItems.Count != 4) return;
+                if (code.deadItems.Count != 4) return "";
+                if (code.myItems.Count != 4) return "";
             }
 
-            game.GameFactory.getUnityManager().mainCamera.createCodeField.text = game.GameFactory.getNetworkManager().createCode(code);
+            return game.GameFactory.getNetworkManager().createCode(code);
         }
 
+        public void SendCode()
+        {
+            string s = "";
+            if (game.GameFactory.getGame().story.state == 9) { s=CreateCode1(); }
+            else if (game.GameFactory.getGame().story.state == 10) { s = CreateCode2(); }
+            else if (game.GameFactory.getGame().story.state == 11) { s = CreateCode2(); }
+            else
+            {
+                Logger.info("Midnight.CreateCode():error state. state=" + game.GameFactory.getGame().story.state);
+            }
 
+            if (s != "")
+            {
+                game.GameFactory.getUnityManager().net.sendCodeAll(s);
+            }
+        }
     }
 }
 

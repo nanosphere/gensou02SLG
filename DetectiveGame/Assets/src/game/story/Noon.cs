@@ -10,15 +10,10 @@ namespace game.story
     {
         public Noon(Game gm,int state):base(gm)
         {
-            nextAction = () =>
-            {
-                
-                if (state == 0) return doit1();
-                if (state == 1) return doit2();
-                if (state == 2) return doit3();
-
-                return false;
-            };
+            if (state == 0) { nextAction = () => { return doit1(); }; }
+            else if (state == 1) { nextAction = () => { return doit2(); }; }
+            else if (state == 2) { nextAction = () => { return doit3(); }; }
+            
             
         }
         public override void init()
@@ -91,10 +86,11 @@ namespace game.story
                 //交換
                 if (item != -1)
                 {
-                    string s = Player.strItem(p.getNoonSelectItem()) + "(" + p.name + ")と";
-                    s += Player.strItem(oppo.items[item]) + "(" + oppo.name + ")" +"のアイテムを交換しました";
-                    p.addMessage(s);
-                    oppo.addMessage(s);
+                    p.addMessage(oppo.name + "さんへの交換は成立しました");
+                    p.addMessage("　交換内容："+ Player.strItem(p.getNoonSelectItem()) + "(" + p.name + ")⇔"+Player.strItem(oppo.items[item]) + "(" + oppo.name + ")");
+
+                    oppo.addMessage(p.name + "さんからの交換を実施しました");
+                    oppo.addMessage("　交換内容：" + Player.strItem(p.getNoonSelectItem()) + "(" + p.name + ")⇔" + Player.strItem(oppo.items[item]) + "(" + oppo.name + ")");
 
                     var tmp = p.items[p.noon1.item];
                     p.items[p.noon1.item] = oppo.items[item];
@@ -102,7 +98,7 @@ namespace game.story
                 }
                 else
                 {
-                    p.addMessage(oppo.name + "さんが交換をしませんでした");
+                    p.addMessage(oppo.name + "さんとの交換は不成立でした");
                 }
             }
 

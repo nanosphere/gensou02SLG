@@ -14,7 +14,7 @@ namespace game.story
             gm = game.GameTest.initTest();
 
             //Arrange
-            gm.story.setState(6,true);
+            gm.story.setState(6);
             gm.story.update();
 
             //Assert
@@ -37,7 +37,7 @@ namespace game.story
 
             //---
 
-            gm.story.setState(7, true);
+            gm.story.setState(7);
             gm.story.update();
 
             //Assert
@@ -60,7 +60,7 @@ namespace game.story
 
             //---
 
-            gm.story.setState(7, true);
+            gm.story.setState(7);
             gm.story.update();
 
             //Assert
@@ -86,7 +86,7 @@ namespace game.story
 
             //---
 
-            gm.story.setState(8, true);
+            gm.story.setState(8);
             gm.story.update();
 
             //Assert

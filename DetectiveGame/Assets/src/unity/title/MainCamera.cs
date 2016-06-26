@@ -17,7 +17,7 @@ namespace unity.title
             game.GameFactory.getUnityManager().title = this;
 
             field = GameObject.Find("Canvas/CodeField").GetComponent<InputField>();
-            nameField = GameObject.Find("Canvas/NameField").GetComponent<InputField>();
+            nameField = GameObject.Find("Canvas/Network/NameField").GetComponent<InputField>();
             inputCodeField = GameObject.Find("Canvas/InputCode").GetComponent<InputField>();
             listtext = GameObject.Find("Canvas/ListText").GetComponent<Text>();
 
@@ -34,6 +34,9 @@ namespace unity.title
             }
             listtext.text = s;
 
+            var net = game.GameFactory.getUnityManager().net;
+            GameObject.Find("Canvas/Network/NetworkLog").GetComponent<Text>().text = net.messages.getMessage();
+
         }
 
 
@@ -49,6 +52,32 @@ namespace unity.title
             game.GameFactory.getNetworkManager().setCode(inputCodeField.text);
             inputCodeField.text = "";
         }
-        
+
+        //------------------------------------
+        public void clickServer()
+        {
+            var net = game.GameFactory.getUnityManager().net;
+            net.port = GameObject.Find("Canvas/Network/Port").GetComponent<InputField>().text;
+            net.fserver = true;
+            net.init();
+        }
+        public void clickConnect()
+        {
+            var net = game.GameFactory.getUnityManager().net;
+            net.ip = GameObject.Find("Canvas/Network/IpAddress").GetComponent<InputField>().text;
+            net.port = GameObject.Find("Canvas/Network/Port2").GetComponent<InputField>().text;
+            net.fserver = false;
+            net.init();
+        }
+        public void addPlayerSend()
+        {
+
+            var o = new net.AddPlayerCode();
+            o.name = nameField.text;
+            game.GameFactory.getUnityManager().net.sendCodeAll( game.GameFactory.getNetworkManager().createCode(o));
+
+        }
+
+
     }
 }

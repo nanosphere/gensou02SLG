@@ -48,6 +48,7 @@ namespace game
             murderer = o.murderer;
             murdererTurn = o.murdererTurn;
             kill = o.kill;
+            killName = o.killName;
             fdead = o.fdead;
             deadName = o.deadName;
             deadReason = o.deadReason;
@@ -197,6 +198,7 @@ namespace game
         
         public void MidnightKillSuccess(string name)
         {
+            if (name == "") return;
             killName = name;
             kill += 1;
             if (!murderer) {

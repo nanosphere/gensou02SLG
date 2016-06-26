@@ -42,6 +42,7 @@ namespace unity.main
         {
             // update game
             game.GameFactory.getGame().update();
+            
         }
 
 
@@ -57,6 +58,12 @@ namespace unity.main
         public void CreateGameCode()
         {
             createCodeField.text = game.GameFactory.getNetworkManager().createGameCode();
+            updateDraw();
+        }
+        public void SendGameCode()
+        {
+            string s = game.GameFactory.getNetworkManager().createGameCode();
+            game.GameFactory.getUnityManager().net.sendCodeOthers(s);
             updateDraw();
         }
 
@@ -81,7 +88,10 @@ namespace unity.main
             GameObject.Find("Canvas/GameInfo/Message2").GetComponent<Text>().text = myp.message;
             GameObject.Find("Canvas/GameInfo/MidnightMessage").GetComponent<Text>().text = game.GameFactory.getGame().midnightMessage;
 
-            
+            var net = game.GameFactory.getUnityManager().net;
+            GameObject.Find("Canvas/GameInfo/NetworkLog").GetComponent<Text>().text = net.messages.getMessage();
+
+
         }
 
         private void updateItemList()
@@ -97,11 +107,7 @@ namespace unity.main
         }
         private void updatePlayerList()
         {
-            //深夜は更新しない
-            if (game.GameFactory.getGame().story.state > 9)
-            {
-                return;
-            }
+            
 
             string s = "";
             foreach (var p in game.GameFactory.getGame().players.players)
@@ -113,12 +119,17 @@ namespace unity.main
                     s += " selected";
                 }
 
-                if (p.fdead)
+                //深夜は更新しない
+                if (game.GameFactory.getGame().story.state <= 9)
                 {
-                    s += " dead";
+                    if (p.fdead)
+                    {
+                        s += " dead";
+                    }
                 }
-                
-                
+
+
+
                 if (game.GameFactory.getGame().captivityName == p.name)
                 {
                     s += " 監禁中";

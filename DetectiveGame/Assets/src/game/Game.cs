@@ -57,11 +57,20 @@ namespace game
                 }
             }
 
-            story.setState(1,true);
+            story.setState(1);
         }
         private void initItemPool()
         {
-            info.totalItem.Clone();
+            //-------------------------暫定
+            if(players.players.Count==2) info.setTotalItem(1,1,4,1,1);//8
+            else if (players.players.Count == 3) info.setTotalItem(1, 2, 6, 2, 1);  //12
+            else if (players.players.Count == 4) info.setTotalItem(1, 3, 8, 2, 2);  //16
+            else if (players.players.Count == 5) info.setTotalItem(1, 4, 10, 3, 2);  //20
+            else if (players.players.Count == 6) info.setTotalItem(1, 4, 12, 4, 3);  //24
+            else if (players.players.Count == 7) info.setTotalItem(1, 5, 14, 4, 4);  //28
+            //-------------------------
+
+            item_pool.Clear();
             for (int j = 0; j < info.totalItem.Length; j++)
             {
                 for (int i = 0; i < info.totalItem[j]; i++)

@@ -15,7 +15,7 @@ namespace game.story
             gm = game.GameTest.initTest();
 
             //Arrange
-            gm.story.setState(9,true);
+            gm.story.setState(9);
             gm.story.update();
 
             //Assert
@@ -40,7 +40,7 @@ namespace game.story
             setMindnight1("p3", -1, "p2");
             
             //---
-            gm.story.setState(10, true);
+            gm.story.setState(10);
             gm.story.update();
 
             //Assert
@@ -76,7 +76,7 @@ namespace game.story
             setMindnight1("p3", 1, "p1");
 
             //---
-            gm.story.setState(10, true);
+            gm.story.setState(10);
             gm.story.update();
 
             //Assert
@@ -114,7 +114,7 @@ namespace game.story
             setMindnight1("p3", 1, "p2");
 
             //---
-            gm.story.setState(10, true);
+            gm.story.setState(10);
             gm.story.update();
 
             //Assert
@@ -146,7 +146,7 @@ namespace game.story
             setMindnight1("p3", -1, "p2");
 
             //---
-            gm.story.setState(10, true);
+            gm.story.setState(10);
             gm.story.update();
 
             //Assert
@@ -180,7 +180,7 @@ namespace game.story
             setMindnight1("p3", -1, "p2");
 
             //---
-            gm.story.setState(10, true);
+            gm.story.setState(10);
             gm.story.update();
 
             //Assert
@@ -213,7 +213,7 @@ namespace game.story
             setMindnight1("p3", -1, "p2");
 
             //---
-            gm.story.setState(10, true);
+            gm.story.setState(10);
             gm.story.update();
 
             //Assert
@@ -247,7 +247,7 @@ namespace game.story
             setMindnight1("p3", -1, "p2");
 
             //---
-            gm.story.setState(10, true);
+            gm.story.setState(10);
             gm.story.update();
 
             //Assert
@@ -282,7 +282,7 @@ namespace game.story
             gm.players.getPlayer("p2").MidnightDead("p1","");
 
             //---
-            gm.story.setState(11, true);
+            gm.story.setState(11);
             gm.story.update();
 
             //Assert

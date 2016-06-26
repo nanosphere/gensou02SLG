@@ -45,11 +45,11 @@ namespace unity.main
         {
             if (game.GameFactory.getGame().story.state == 6)
             {
-                CreateCode1();
+                game.GameFactory.getUnityManager().mainCamera.createCodeField.text = CreateCode1();
             }
             else if (game.GameFactory.getGame().story.state == 7)
             {
-                CreateCode2();
+                game.GameFactory.getUnityManager().mainCamera.createCodeField.text = CreateCode2();
             }
             else
             {
@@ -57,13 +57,13 @@ namespace unity.main
             }
 
         }
-        private void CreateCode1() {
+        private string CreateCode1() {
             // 1
             net.NightCode1 code = new net.NightCode1();
             code.fyes = (YesNoBox.value == 1);
-            game.GameFactory.getUnityManager().mainCamera.createCodeField.text = game.GameFactory.getNetworkManager().createCode(code);
+            return game.GameFactory.getNetworkManager().createCode(code);
         }
-        private void CreateCode2() {
+        private string CreateCode2() {
             // 2
             net.NightCode2 code = new net.NightCode2();
             code.name = playerListDropdown.captionText.text;
@@ -71,8 +71,29 @@ namespace unity.main
             {
                 code.name = "";
             }
-            game.GameFactory.getUnityManager().mainCamera.createCodeField.text = game.GameFactory.getNetworkManager().createCode(code);
+            return game.GameFactory.getNetworkManager().createCode(code);
 
+        }
+
+        public void SendCode()
+        {
+            string s = "";
+            if (game.GameFactory.getGame().story.state == 6)
+            {
+                s = CreateCode1();
+            }
+            else if (game.GameFactory.getGame().story.state == 7)
+            {
+                s = CreateCode2();
+            }
+            else
+            {
+                Logger.info("Night.CreateCode():error state. state=" + game.GameFactory.getGame().story.state);
+            }
+            if (s != "")
+            {
+                game.GameFactory.getUnityManager().net.sendCodeAll(s);
+            }
         }
     }
 }

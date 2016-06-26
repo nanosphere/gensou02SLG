@@ -12,8 +12,8 @@ namespace game
         //-----------------------
         public string player_name = "player test";
         public bool fhost = true;
-        
-        public int timer_minutes = 60*5;
+
+        public int timer_minutes = 60 * 5;
         public int useKnife = 2;
         public int dementDay = 2;
         public int max_item = 4;
@@ -28,7 +28,7 @@ namespace game
             totalItem[2] = 12;
             totalItem[3] = 4;
             totalItem[4] = 4;
-            
+
             // 24
             //if (item == 1) return "狂気の殺人包丁";
             //if (item == 2) return "包丁";
@@ -37,6 +37,14 @@ namespace game
             //if (item == 5) return "検死キット";
 
         }
+        public void setTotalItem(int i1,int i2,int i3,int i4,int i5) {
+            totalItem = new int[5];
+            totalItem[0] = i1;
+            totalItem[1] = i2;
+            totalItem[2] = i3;
+            totalItem[3] = i4;
+            totalItem[4] = i5;
+       }
 
 
         public void sync(SettingInfo o)

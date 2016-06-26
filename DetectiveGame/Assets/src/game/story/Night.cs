@@ -10,17 +10,10 @@ namespace game.story
     {
         public Night(Game gm,int state):base(gm)
         {
-            nextAction = () =>
-            {
-                
-
-                if (state == 0) return doit1();
-                if (state == 1) return doit2();
-                if (state == 2) return doit3();
-
-                return false;
-            };
-            
+            if (state == 0) { nextAction = () => { return doit1(); }; }
+            else if (state == 1) { nextAction = () => { return doit2(); }; }
+            else if (state == 2) { nextAction = () => { return doit3(); }; }
+                        
         }
         public override void init()
         {

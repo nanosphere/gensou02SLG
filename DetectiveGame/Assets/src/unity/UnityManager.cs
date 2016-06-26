@@ -9,6 +9,8 @@ namespace unity
 {
     public class UnityManager
     {
+        public network.NetworkUnity net = null;
+
         public main.MainCamera mainCamera = null;
         public main.Noon noon = null;
         public main.Night night = null;

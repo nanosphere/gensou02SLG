@@ -14,7 +14,7 @@ namespace game.story
             gm = game.GameTest.initTest();
 
             //Arrange
-            gm.story.setState(3,true);
+            gm.story.setState(3);
 
             //Act
             //Try to rename the GameObject
@@ -46,7 +46,7 @@ namespace game.story
             assertItem("p3", 5, 5, 5, 5);
             //---
 
-            gm.story.setState(4, true);
+            gm.story.setState(4);
             gm.story.update();
 
             //Assert
@@ -103,7 +103,7 @@ namespace game.story
             }
             //---
 
-            gm.story.setState(5, true);
+            gm.story.setState(5);
             gm.story.update();
 
             //Assert

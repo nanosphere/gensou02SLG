@@ -10,16 +10,10 @@ namespace game.story
     {
         public MidNight(Game gm,int state):base(gm)
         {
-            nextAction = () =>
-            {
-                
-                if (state==0) return doit0();
-                else if (state == 1) return doit1();
-                else if (state == 2) return doit2();
-                else if (state == 3) return doit3();
-
-                return true;
-            };
+            if (state == 0) { nextAction = () => { return doit0(); }; }
+            else if (state == 1) { nextAction = () => { return doit1(); }; }
+            else if (state == 2) { nextAction = () => { return doit2(); }; }
+            else if (state == 3) { nextAction = () => { return doit3(); }; }
 
         }
         public override void init()
@@ -33,13 +27,7 @@ namespace game.story
         private bool doit0()
         {
 
-            // 初期化
-            foreach (var p in gm.players.players)
-            {
-                p.killName = "";
-                p.fdeadToday = false;
-            }
-            gm.captivityName = "";
+            
 
 
             gm.midnightMessage = "";
@@ -52,7 +40,7 @@ namespace game.story
         private bool doit1()
         {
             if (!GameFactory.getNetworkManager().isPlayerAllAck()) return false;
-
+            
             //監禁者はアイテム未使用
             if (gm.captivityName != "")
             {
@@ -119,7 +107,7 @@ namespace game.story
             //殺人者のアイテム判定
             //----------------
             gm.message = "殺害に成功した人は拾うアイテムを選んでください(いない場合もあります)";
-            init();
+            gm.message += "GMへは全員がコードを送ってください";
             GameFactory.getNetworkManager().askPlayers();
             nextAction = null;
 
@@ -170,13 +158,14 @@ namespace game.story
             //第一発見者処理(生き残った人間で分配)
             //----------------
             gm.message = "第1発見者は拾うアイテムを選んでください(いない場合もあります)";
-            init();
+            gm.message += "GMへは全員がコードを送ってください";
             GameFactory.getNetworkManager().askPlayers();
             nextAction = null;
             return true;
         }
         private bool doit3()
         {
+
             if (!GameFactory.getNetworkManager().isPlayerAllAck()) return false;
 
             var deadlist = getDeadPlayers();

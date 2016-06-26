@@ -52,10 +52,11 @@ namespace game.story
             foreach (var p in gm.players.players)
             {
                 p.killName = "";
+                p.fdeadToday = false;
             }
             gm.captivityName = "";
-
             
+
 
             gm.message = "早朝フェイズです\n";
             gm.message += "状況とアイテムが確認できたら進めるを押してください\n";

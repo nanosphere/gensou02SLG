@@ -4,13 +4,14 @@ using System.Collections.Generic;
 
 namespace net
 {
-    public class NetworkManager
+    public class NetworkCodeManager
     {
         
+
         public void askPlayers()
         {
             // set
-            foreach (var p in game.GameFactory.getGame().players.players)
+            foreach(var p in game.GameFactory.getGame().players.players)
             {
                 p.fnetWait = true;
             }
@@ -101,6 +102,7 @@ namespace net
                 return;
             }
             player.fnetWait = false;
+            Logger.info("z");
 
             //-------------------------------
             game.GameFactory.getUnityManager().update();
