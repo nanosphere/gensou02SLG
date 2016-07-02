@@ -86,7 +86,7 @@ namespace unity.main
                         objs[i].transform.FindChild("Name").GetComponent<Text>().text = "選べません";
                         game.GameFactory.getUnityManager().createDropdown(objs[i].transform.FindChild("ItemList").GetComponent<Dropdown>(), items2, true);
                     }
-                    if (myp.noon1.item == i)
+                    else if (myp.noon1.item == i)
                     {
                         objs[i].transform.FindChild("Name").GetComponent<Text>().text = "交換にて選択済み";
                         game.GameFactory.getUnityManager().createDropdown(objs[i].transform.FindChild("ItemList").GetComponent<Dropdown>(), items2, true);

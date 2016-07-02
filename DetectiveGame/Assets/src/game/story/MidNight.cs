@@ -303,6 +303,7 @@ namespace game.story
                         murderer.additem(1);
                         murderer.addMessage(name + "さんは狂気の殺人包丁を持っていた");
                         murderer.addMessage("狂気の殺人包丁を手に入れた");
+                        opponent.removeMurdererKnife();
                     }
                 }
                 opponent.addMessage("あなたは殺された");

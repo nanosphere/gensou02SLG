@@ -91,6 +91,11 @@ namespace unity.main
             var net = game.GameFactory.getUnityManager().net;
             GameObject.Find("Canvas/GameInfo/NetworkLog").GetComponent<Text>().text = net.messages.getMessage();
 
+            //各状況
+            if (game.GameFactory.getUnityManager().noon != null) game.GameFactory.getUnityManager().noon.updateDraw();
+            if (game.GameFactory.getUnityManager().midnight != null) game.GameFactory.getUnityManager().midnight.updateDraw();
+            if (game.GameFactory.getUnityManager().night != null) game.GameFactory.getUnityManager().night.updateDraw();
+
 
         }
 

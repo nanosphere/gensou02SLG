@@ -110,7 +110,20 @@ namespace game
             Logger.info("Player.setItem():item set is fail. item="+item);
             return false;
         }
-
+        public void removeMurdererKnife()
+        {
+            for (int i = 0; i < items.Length; i++)
+            {
+                if (items[i] == 1)
+                {
+                    items[i] = -1;
+                    return;
+                }
+            }
+            Logger.info("Player.removeMurdererKnife():murderer knife is not found.");
+            return ;
+        }
+        
         public string toItems()
         {
             string s = "";
