@@ -3,118 +3,175 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using UnityEngine;
+
+using game.db;
 using game.story;
 
 namespace game
 {
+    public class ShareData
+    {
+        
+        public History history = new History();
+        public Players players = new Players();
+        public Items items = new Items();
+        public Field field = new Field();
+
+        public bool fdrawNewScene = false;
+
+        public void sync(ShareData o)
+        {
+            history.sync(o.history);
+            players.sync(o.players);
+            items.sync(o.items);
+            field.sync(o.field);
+            fdrawNewScene = o.fdrawNewScene;
+        }
+    }
+    public class LocalData
+    {
+        public int myPlayer = 0;
+        public bool fgm = false;
+        public bool debug_room = false;
+
+        public DateTime start_time;
+        
+        public common.MessageHistory game = new common.MessageHistory(10);
+        public common.MessageHistory game2 = new common.MessageHistory(10);
+
+    }
+
     public class Game
     {
-        public story.StoryManager story = new story.StoryManager();
-        public History history = new History();
+        public ShareData shareData = new ShareData();
+        public LocalData localData = new LocalData();
 
-        public Players players = new Players();
-        public List<int> item_pool = new List<int>();
-        public SettingInfo info = new SettingInfo();
-
-        public string message = "";
-        public string midnightMessage = "";
-
-        public string captivityName = "";
-        public bool fcapativity = false;
-
-        public void sync(Game o)
+        public Player getMyPlayer()
         {
-            captivityName = o.captivityName;
-            fcapativity = o.fcapativity;
-            players.sync(o.players);
-            message = o.message;
-            midnightMessage = o.midnightMessage;
-            item_pool.Clear();
-            foreach(var s in o.item_pool)
-            {
-                item_pool.Add(s);
-            }
-            info.sync(o.info);
-            story.sync(o.story);
-            history.sync(o.history);
+            return shareData.players.getPlayer(localData.myPlayer);
         }
-        //--------------------------------------------------------------
 
-        //-------------------------------
-        // init
-        //-------------------------------
-        public void init()
+        public void updateMessage()
         {
-            initItemPool();
+            localData.game.clear();
+            localData.game2.clear();
 
-            for (int i=0;i<players.players.Count; i++)
+            if (shareData.field.state == FIELD_STATE.EARLY_MORNING)
             {
-                Player p = players.players[i];
-                p.init();
-                for (int j = 0; j < 4; j++)
+                localData.game.addMessage("早朝フェイズです");
+                localData.game.addMessage("状況とアイテムを確認して下さい");
+                if (localData.fgm)
                 {
-                    p.setItem(j,item_pool[i*4+j] );
+                    localData.game.addMessage("進めるを押すと進みます");
+                }
+
+
+                // 状況確認
+                if (shareData.field.turn >= 1)
+                {
+                    bool f = true;
+                    foreach (var p in shareData.players.players)
+                    {
+                        if (p.dayDead)
+                        {
+                            f = false;
+
+                            localData.game2.addMessage( p.name + "さんが無残な死体で発見されました");
+                            localData.game2.addMessage("　所持アイテム");
+                            for (int i=0;i<p.items.Length;i++)
+                            {
+                                if ( p.getItem(i) == ITEM.NONE) continue;
+                                localData.game2.addMessage("　　" + p.getItemStr(i));
+                            }
+                        }
+                    }
+                    if (f)
+                    {
+                        localData.game2.addMessage("昨晩は何事もなかったようです");
+                    }
+
+                    //終了判定
+                    // todo
+
+                }
+                
+            }
+            else if (shareData.field.state == FIELD_STATE.MORNING)
+            {
+                localData.game.addMessage("朝フェイズです");
+                localData.game.addMessage("状況とアイテム交換について話し合ってください");
+                if (localData.fgm)
+                {
+                    localData.game.addMessage("進めるを押すと進みます");
+                }
+
+            }
+            else if (shareData.field.state == FIELD_STATE.NOON)
+            {
+                localData.game.addMessage("昼フェイズ(交換タイム)です");
+                localData.game.addMessage("交換を希望する相手を選択して送信ボタンを押してください");
+                if (localData.fgm && shareData.players.isAllPlayerState(PLAYER_STATE.NOON_END))
+                {
+                    localData.game.addMessage("全員の選択が終わりました、進めるを押してください");
                 }
             }
-
-            story.setState(1);
-        }
-        private void initItemPool()
-        {
-            //-------------------------暫定
-            if(players.players.Count==2) info.setTotalItem(1,1,4,1,1);//8
-            else if (players.players.Count == 3) info.setTotalItem(1, 2, 6, 2, 1);  //12
-            else if (players.players.Count == 4) info.setTotalItem(1, 3, 8, 2, 2);  //16
-            else if (players.players.Count == 5) info.setTotalItem(1, 4, 10, 3, 2);  //20
-            else if (players.players.Count == 6) info.setTotalItem(1, 4, 12, 4, 3);  //24
-            else if (players.players.Count == 7) info.setTotalItem(1, 5, 14, 4, 4);  //28
-            //-------------------------
-
-            item_pool.Clear();
-            for (int j = 0; j < info.totalItem.Length; j++)
+            else if (shareData.field.state == FIELD_STATE.NIGHT)
             {
-                for (int i = 0; i < info.totalItem[j]; i++)
+                localData.game.addMessage("夜フェイズ(監禁タイム)です");
+                localData.game.addMessage("話し合いののち、監禁について投票してください");
+                if (localData.fgm && shareData.players.isAllPlayerState(PLAYER_STATE.NIGHT_SELECT_END))
                 {
-                    item_pool.Add(j+1);
+                    localData.game.addMessage("全員の選択が終わりました、進めるを押してください");
+                }
+                if (localData.fgm && shareData.players.isAllPlayerState(PLAYER_STATE.NIGHT_VOTE_END))
+                {
+                    localData.game.addMessage("全員の選択が終わりました、進めるを押してください");
+                }
+
+                if (shareData.players.isAllPlayerState(PLAYER_STATE.NIGHT_SELECT_END) || shareData.players.isAllPlayerState(PLAYER_STATE.NIGHT_VOTE, PLAYER_STATE.NIGHT_VOTE_OK))
+                {
+                    localData.game2.addMessage("投票結果");
+                    localData.game2.addMessage("　投票する　:" + shareData.field.yes + "票");
+                    localData.game2.addMessage("　投票しない:" + shareData.field.no + "票");
+                    if (shareData.field.yes > shareData.field.no)
+                    {
+                        localData.game2.addMessage("　監禁するとなりました。監禁者を投票してください");
+                    }
+                    else
+                    {
+                        localData.game2.addMessage("　監禁しないとなりました。");
+                    }
+                }
+                else if (shareData.players.isAllPlayerState(PLAYER_STATE.NIGHT_VOTE_END))
+                {
+                    localData.game2.addMessage("投票結果");
+                    foreach (var p2 in shareData.players.players)
+                    {
+                        if (p2.fdead) continue;
+                        localData.game2.addMessage("　" + p2.name + "：" + p2.dayNightVote + "票");
+                    }
+                    var p = shareData.players.getPlayer(shareData.field.captivity);
+                    if (p == null)
+                    {
+                        localData.game2.addMessage("　error:id=" + shareData.field.captivity);
+                    }
+                    else
+                    {
+                        localData.game2.addMessage("　監禁者は" + p.name + "さんに決まりました");
+                    }
                 }
             }
-
-            //足りない分
-            int itemnum = players.players.Count * 4;
-            for(int i=item_pool.Count; i<itemnum; i++)
+            else if (shareData.field.state == FIELD_STATE.MIDNIGHT)
             {
-                item_pool.Add( MyRandom.rand(3,5));
+                localData.game.addMessage("深夜フェイズ(アイテム使用)です");
+                localData.game.addMessage("使うアイテムを選択してください");
+                if (localData.fgm && shareData.players.isAllPlayerState(PLAYER_STATE.MIDNIGHT_END))
+                {
+                    localData.game.addMessage("全員の選択が終わりました、進めるを押してください");
+                }
+
             }
-
-            shuffle();
-
         }
 
-        //-------------------------------
-        // update
-        //-------------------------------
-        public void update()
-        {
-            story.update();
-        }
-        
-        //-------------------------------
-        // シャッフル
-        //-------------------------------
-        public void shuffle()
-        {
-            var cRandom = new System.Random(Environment.TickCount);
-
-            for (int i = item_pool.Count; i > 1; --i)
-            {
-                int a = i - 1;
-                int b = cRandom.Next() % i;
-
-                var tmp = item_pool[a];
-                item_pool[a] = item_pool[b];
-                item_pool[b] = tmp;
-            }
-            
-        }
     }
 }

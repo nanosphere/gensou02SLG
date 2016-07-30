@@ -11,13 +11,13 @@ namespace common
         public static string encode(string str)
         {
             if (str == "") return "";
-            Random rnd1 = new Random(Environment.TickCount);
-            int rnd = rnd1.Next(0, 999);
+            //Random rnd1 = new Random(Environment.TickCount);
+            //int rnd = rnd1.Next(0, 999);
             
             //Random rnd = new Random(1);
             //int randomNumber = rnd.Next(0,999999);
             
-            string s = EncryptString( str + "%" + rnd , "pass");
+            string s = EncryptString( str , "pass");
             return s;
         }
         public static string dencode(string str)

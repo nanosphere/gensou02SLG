@@ -3,27 +3,51 @@ using System.Collections;
 using UnityEngine.UI;
 using System.Collections.Generic;
 
+using game.story.game2;
+using game.db;
+
+
 namespace unity.main
 {
     public class Midnight : MonoBehaviour
     {
-        List<GameObject> objs = new List<GameObject>();
+        MyDropdown mid1_item;
+        MyDropdown mid1_chara;
 
-        Dropdown itemListDropdown;
-        Dropdown playerListDropdown;
+        MyDropdown[] mid2_item = new MyDropdown[4];
+
+        GameObject midnight1;
+        GameObject midnight2;
+
+        bool fupdatenow = false;
+        Player mid2_sendp = null;
+        
+        
+        MidnightSub sub = new MidnightSub();
 
         // Use this for initialization
         void Start()
         {
-            game.GameFactory.getUnityManager().midnight = this;
+            GameFactory.getUnityManager().midnight = this;
 
-            itemListDropdown = GameObject.Find("Canvas/Midnight/ItemList").GetComponent<Dropdown>();
-            playerListDropdown = GameObject.Find("Canvas/Midnight/PlayerList").GetComponent<Dropdown>();
             
-            for (int i = 1; i <= 8; i++)
+
+            mid1_item = new MyDropdownUnity(GameObject.Find("Canvas/Midnight/Midnight1/item").GetComponent<Dropdown>());
+            mid1_chara = new MyDropdownUnity(GameObject.Find("Canvas/Midnight/Midnight1/chara").GetComponent<Dropdown>());
+            
+            for(int i=0;i< mid2_item.Length; i++)
             {
-                var obj = GameObject.Find("Canvas/Midnight/NightItem" + i);
-                objs.Add(obj);
+                mid2_item[i] = new MyDropdownUnity(GameObject.Find("Canvas/Midnight/Midnight2/item" + (i + 1)).GetComponent<Dropdown>());
+            }
+
+            midnight1 = GameObject.Find("Midnight1");
+            midnight2 = GameObject.Find("Midnight2");
+            midnight1.SetActive(false);
+            midnight2.SetActive(false);
+
+            if (GameFactory.getGame().shareData.field.state != game.FIELD_STATE.NONE)
+            {
+                updateDraw(GameFactory.getUnityManager().firstUpdate);
             }
         }
 
@@ -31,142 +55,133 @@ namespace unity.main
         void Update()
         {
         }
-        
-        public void updateDraw()
+
+        public void onClickOk()
         {
-            updateItemList();
-            updatePlayerList();
-            updateItemList2();
+            if (GameFactory.getUnityManager().net == null) return;
+            var dat = game.net.CreateStoryCode.MidnightSelect(GameFactory.getGame().localData.myPlayer, mid1_chara.getSelect(), mid1_item.getSelect());
+            string code = GameFactory.getNetworkManager().createCodeSendData(dat);
+            GameFactory.getUnityManager().net.sendCode(code, RPCMode.Server);
         }
-        private void updateItemList()
+        public void onClickOk2()
         {
-            game.Player myp = game.GameFactory.getGame().players.getMyPlayer();
-            List<string> items = new List<string>();
-            items.Add("使用しない");
-            for (int i = 0; i < myp.items.Length; i++)
-            {
-                objs[i].transform.FindChild("Item").GetComponent<Text>().text = ""+(i+1)+"."+myp.getStrItem(i);
-                items.Add("" + (i + 1) + "." + myp.getStrItem(i));
-            }
-            game.GameFactory.getUnityManager().createDropdown(itemListDropdown, items, true);
-        }
-        private void updatePlayerList()
-        {
-            game.GameFactory.getUnityManager().createPlayerDropdown(playerListDropdown);
-        }
-        
-        private void updateItemList2()
-        {
-            var myp = game.GameFactory.getGame().players.getMyPlayer();
-            game.Player enep = null;
-            if (game.GameFactory.getGame().story.state == 10) {
-                enep = game.GameFactory.getGame().players.getPlayer(myp.killName);
-            }
-            else if (game.GameFactory.getGame().story.state == 11)
-            {
-                foreach (var p in game.GameFactory.getGame().players.players)
-                {
-                    if ( p.fdeadToday && p.firstDiscoverer == myp.name)
-                    {
-                        enep = p;
-                        break;
-                    }
-                }
-            }
-            if (enep == null)
-            {
-                foreach (var o in objs)
-                {
-                    o.transform.FindChild("Item").GetComponent<Text>().text = "";
-                }
-                return;
-            }
-            int i = 0;
-            for (int j=0; j<4;j++)
-            {
-                objs[i].transform.FindChild("Item").GetComponent<Text>().text = myp.name +":"+myp.getStrItem(j);
-                objs[i].transform.FindChild("YesNo").GetComponent<Dropdown>().value = 1;
-                i++;
-            }
-            for (int j = 0; j < 4; j++)
-            {
-                objs[i].transform.FindChild("Item").GetComponent<Text>().text = enep.name + ":" + enep.getStrItem(j);
-                objs[i].transform.FindChild("YesNo").GetComponent<Dropdown>().value = 0;
-                i++;
-            }
+            if (GameFactory.getUnityManager().net == null) return;
+            if (mid2_sendp == null) return;
+
+            sub.nokoriItem(mid2_sendp, mid2_item[0].getSelect(), mid2_item[1].getSelect(), mid2_item[2].getSelect(), mid2_item[3].getSelect());
+            var dat = game.net.CreateStoryCode.MidnightSelectItem(GameFactory.getGame().localData.myPlayer, mid2_sendp.id, sub.mySelectedItem.ToArray(), sub.enemySelectedItem.ToArray());
+
+            string code = GameFactory.getNetworkManager().createCodeSendData(dat);
+            GameFactory.getUnityManager().net.sendCode(code, RPCMode.Server);
 
         }
-
-        //=====================================
-        // onClick
-        //=====================================
-        public void CreateCode()
+        public void onMid2Chenge()
         {
-            string s = "";
-            if (game.GameFactory.getGame().story.state == 9){       CreateCode1();  }
-            else if (game.GameFactory.getGame().story.state == 10) { CreateCode2(); }
-            else if (game.GameFactory.getGame().story.state == 11) { CreateCode2(); }
+            if (!fupdatenow)
+            {
+                updateDraw(false);
+            }
+        }
+
+
+
+        //--------------------------------------------------
+        // draw
+        //--------------------------------------------------
+        public void updateDraw(bool first)
+        {
+            fupdatenow = true;
+            mid2_sendp = null;
+
+            midnight1.SetActive(false);
+            midnight2.SetActive(false);
+
+            var myp = GameFactory.getGame().getMyPlayer();
+
+            // アイテム選択
+            if (myp.state == game.db.PLAYER_STATE.NONE) {
+                midnight1.SetActive(true);
+                updateMidnight1(first);
+            }
             else
-            {
-                Logger.info("Midnight.CreateCode():error state. state=" + game.GameFactory.getGame().story.state);
-            }
-            if (s != "")
-            {
-                game.GameFactory.getUnityManager().mainCamera.createCodeField.text = s;
-            }
-        }
-        private string CreateCode1()
-        {
-            net.MidnightCode1 code = new net.MidnightCode1();
-            code.item = itemListDropdown.value - 1;
-            code.name = playerListDropdown.captionText.text;
-            return game.GameFactory.getNetworkManager().createCode(code);
-        }
-        private string CreateCode2()
-        {
-            net.MidnightCode2 code = new net.MidnightCode2();
-            if (objs[0].transform.FindChild("Item").GetComponent<Text>().text != "")
-            {
-                int i = 0;
-                foreach (var o in objs)
+            {   
+                if (myp.state == PLAYER_STATE.MIDNIGHT_SELECT_OK_DISCOVERER_ITEM_SELECT)
                 {
-                    bool fyes = (o.transform.FindChild("YesNo").GetComponent<Dropdown>().value == 1);
-                    string itemstr = objs[i].transform.FindChild("Item").GetComponent<Text>().text;
-                    int item = game.Player.intItem(itemstr.Split(':')[1]);
-                    if (fyes)
-                    {
-                        code.myItems.Add(item);
-                    }
-                    else
-                    {
-                        code.deadItems.Add(item);
-                    }
-
-                    i++;
+                    //アイテムを拾う画面
+                    midnight2.SetActive(true);
+                    mid2_sendp = GameFactory.getGame().shareData.players.getPlayer( myp.dayDiscovere );
+                    updateMidnight2(myp, mid2_sendp, first);
                 }
-                if (code.deadItems.Count != 4) return "";
-                if (code.myItems.Count != 4) return "";
+                if( myp.state == PLAYER_STATE.MIDNIGHT_KILL_ITEM_SELECT )
+                {
+                    //アイテムを拾う画面
+                    midnight2.SetActive(true);
+                    mid2_sendp = GameFactory.getGame().shareData.players.getPlayer(myp.dayKill);
+                    updateMidnight2(myp, mid2_sendp, first);
+                }
+                
             }
-
-            return game.GameFactory.getNetworkManager().createCode(code);
+            fupdatenow = false;
         }
-
-        public void SendCode()
+        private void updateMidnight1(bool first)
         {
-            string s = "";
-            if (game.GameFactory.getGame().story.state == 9) { s=CreateCode1(); }
-            else if (game.GameFactory.getGame().story.state == 10) { s = CreateCode2(); }
-            else if (game.GameFactory.getGame().story.state == 11) { s = CreateCode2(); }
-            else
             {
-                Logger.info("Midnight.CreateCode():error state. state=" + game.GameFactory.getGame().story.state);
+                var myp = GameFactory.getGame().getMyPlayer();
+                mid1_item.clear();
+                mid1_item.add("使用しない", -1);
+                for (int i = 0; i < myp.items.Length; i++)
+                {
+                    if (myp.getItem(i) == game.db.ITEM.NONE) continue;
+                    mid1_item.add("" + myp.getItemStr(i), i);
+                }
+                mid1_item.updateDraw(first);
             }
-
-            if (s != "")
             {
-                game.GameFactory.getUnityManager().net.sendCodeAll(s);
+                mid1_chara.clear();
+                foreach (var p in GameFactory.getGame().shareData.players.players)
+                {
+                    if ( p.id == GameFactory.getGame().localData.myPlayer) continue;
+                    mid1_chara.add(""+p.name , p.id);
+                }
+                mid1_chara.updateDraw(first);
             }
         }
+        private void updateMidnight2(Player myp,Player opp,bool first)
+        {
+
+            // 敵のアイテムリスト
+            for (int i = 0; i < opp.items.Length; i++)
+            {
+                var o = GameObject.Find("Canvas/Midnight/Midnight2/oppitem" + (i + 1));
+                if (o == null) continue;
+                o.GetComponent<Text>().text = opp.getItemStr(i);
+            }
+
+            // 自分のアイテムリスト選択候補
+            for (int i = 0; i < 4; i++)
+            {
+                sub.setMyItemList(mid2_item[i],i,opp,first, mid2_item[0].getSelect(), mid2_item[1].getSelect(), mid2_item[2].getSelect(), mid2_item[3].getSelect());
+                mid2_item[i].updateDraw(true);
+            }
+            
+            //選択済みアイテムリストから予測する
+            sub.nokoriItem(mid2_sendp, mid2_item[0].getSelect(), mid2_item[1].getSelect(), mid2_item[2].getSelect(), mid2_item[3].getSelect());
+            for(int i = 0; i < sub.mySelectedItem.Count; i++)
+            {
+                var o = GameObject.Find("Canvas/Midnight/Midnight2/myitem" + (i + 1));
+                o.GetComponent<Text>().text = "" + Player.getStr(sub.mySelectedItem[i]);
+            }
+            for (int i = 0; i < sub.enemySelectedItem.Count; i++)
+            {
+                var o = GameObject.Find("Canvas/Midnight/Midnight2/oppitem2_" + (i + 1));
+                o.GetComponent<Text>().text = "" + Player.getStr(sub.enemySelectedItem[i]);
+            }
+
+        }
+
+
+        
+
     }
 }
 

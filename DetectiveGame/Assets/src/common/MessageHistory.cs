@@ -11,24 +11,16 @@ namespace common
     {
         List<string> messages = new List<string>();
         int maxline = 0;
-        bool fcount = false;
-        int count = 0;
-        bool reverse = false;
+        int count = 1;
 
-        public MessageHistory(int maxLine,bool fcount,bool reverse)
+        public MessageHistory(int maxLine)
         {
-            this.fcount = fcount;
             maxline = maxLine;
-            this.reverse = reverse;
         }
         
         public void addMessage(string str)
         {
-            if (fcount)
-            {
-                count++;
-                str = "" + (count) + "." + str;
-            }
+            count++;
             if (messages.Count >= maxline)
             {
                 for (int i = 0; i < messages.Count-1; i++)
@@ -43,22 +35,31 @@ namespace common
             }
         }
 
-        public string getMessage()
+        public string getMessage(bool reverse, bool fcount)
         {
             string s = "";
             for (int i=0;i<messages.Count;i++)
             {
+                string line = messages[i];
+                if (fcount)
+                {
+                    line = "" + (count- messages.Count+i) + "." + line;
+                }
                 if (reverse)
                 {
-                    s = messages[i] + "\n" + s;
+                    s = line + "\n" + s;
                 }
                 else
                 {
-                    s += messages[i]+ "\n";
+                    s += line + "\n";
                 }
             }
             return s;
         }
-
+        public void clear()
+        {
+            count = 0;
+            messages.Clear();
+        }
     }
 }

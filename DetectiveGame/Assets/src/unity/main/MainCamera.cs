@@ -1,150 +1,41 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
-using System.Collections.Generic;
+
+
+
 
 namespace unity.main
 {
     public class MainCamera : MonoBehaviour
     {
-        InputField inputCodeField;
-        public InputField createCodeField;
-
-
-        Dropdown debugPlayerListDropdown =null;
-
         // Use this for initialization
         void Start()
         {
-            game.GameFactory.getUnityManager().mainCamera = this;
             
-            inputCodeField = GameObject.Find("Canvas/Code/InputCode").GetComponent<InputField>();
-            createCodeField = GameObject.Find("Canvas/Code/CodeField").GetComponent<InputField>();
-           
-
-            // debug
-            //debugPlayerListDropdown = GameObject.Find("Canvas/DebugSelectPlayerList").GetComponent<Dropdown>();
-            //game.GameFactory.getGame().players.addPlayer(game.GameFactory.getGame().info.player_name);
-            //game.GameFactory.getGame().players.addPlayer("p1");
-            //game.GameFactory.getGame().players.addPlayer("p2");
-            //game.GameFactory.getGame().players.addPlayer("p3");
-
-
-            // init
-            game.GameFactory.getGame().init();
-            updateDraw();
-            
-
         }
+
 
         // Update is called once per frame
         void Update()
         {
-            // update game
-            game.GameFactory.getGame().update();
-            
-        }
-
-
-        //=====================================
-        // onClick
-        //=====================================
-        public void InputCode()
-        {
-            game.GameFactory.getNetworkManager().setCode(inputCodeField.text);
-            inputCodeField.text = "";
-            updateDraw();
-        }
-        public void CreateGameCode()
-        {
-            createCodeField.text = game.GameFactory.getNetworkManager().createGameCode();
-            updateDraw();
-        }
-        public void SendGameCode()
-        {
-            string s = game.GameFactory.getNetworkManager().createGameCode();
-            game.GameFactory.getUnityManager().net.sendCodeOthers(s);
-            updateDraw();
-        }
-
-        public void onClickNextTurn()
-        {
-            if (!game.GameFactory.getGame().info.fhost) return;
-            game.GameFactory.getGame().story.nextTurn();
-            updateDraw();
-        }
-
-        //=====================================
-        // state
-        //=====================================
-        public void updateDraw()
-        {
-            GameObject.Find("Canvas/GameInfo/PlayerName").GetComponent<Text>().text = game.GameFactory.getGame().info.player_name;
-            GameObject.Find("Canvas/GameInfo/TextState").GetComponent<Text>().text = game.GameFactory.getGame().story.toState();
-            updateItemList();
-            updatePlayerList();
-            game.Player myp = game.GameFactory.getGame().players.getMyPlayer();
-            GameObject.Find("Canvas/GameInfo/Message").GetComponent<Text>().text = game.GameFactory.getGame().message;
-            GameObject.Find("Canvas/GameInfo/Message2").GetComponent<Text>().text = myp.message;
-            GameObject.Find("Canvas/GameInfo/MidnightMessage").GetComponent<Text>().text = game.GameFactory.getGame().midnightMessage;
-
-            var net = game.GameFactory.getUnityManager().net;
-            GameObject.Find("Canvas/GameInfo/NetworkLog").GetComponent<Text>().text = net.messages.getMessage();
-
-            //各状況
-            if (game.GameFactory.getUnityManager().noon != null) game.GameFactory.getUnityManager().noon.updateDraw();
-            if (game.GameFactory.getUnityManager().midnight != null) game.GameFactory.getUnityManager().midnight.updateDraw();
-            if (game.GameFactory.getUnityManager().night != null) game.GameFactory.getUnityManager().night.updateDraw();
-
-
-        }
-
-        private void updateItemList()
-        {
-            game.Player myp = game.GameFactory.getGame().players.getMyPlayer();
-            string s = "";
-            for (int i=0;i<myp.items.Length;i++)
-            {
-                s += myp.getStrItem(i) + "\n";
+            if (GameFactory.getGame().localData.debug_room == false) {
+                if (Input.GetKey(KeyCode.Alpha1) && Input.GetKey(KeyCode.Alpha3) && Input.GetKey(KeyCode.Alpha5))
+                {
+                    Logger.info("debug room on");
+                    GameFactory.getGame().localData.debug_room = true;
+                    GameFactory.getUnityManager().updateDraw(true);
+                }
+            } else {
+                if (Input.GetKey(KeyCode.Alpha2) && Input.GetKey(KeyCode.Alpha4) && Input.GetKey(KeyCode.Alpha6))
+                {
+                    Logger.info("debug room off");
+                    GameFactory.getGame().localData.debug_room = false;
+                    GameFactory.getUnityManager().updateDraw(true);
+                }
             }
-            GameObject.Find("Canvas/GameInfo/ItemList").GetComponent<Text>().text = s;
-            
-        }
-        private void updatePlayerList()
-        {
-            
-
-            string s = "";
-            foreach (var p in game.GameFactory.getGame().players.players)
-            {
-
-                s += p.name;
-                if (!p.fnetWait)
-                {
-                    s += " selected";
-                }
-
-                //深夜は更新しない
-                if (game.GameFactory.getGame().story.state <= 9)
-                {
-                    if (p.fdead)
-                    {
-                        s += " dead";
-                    }
-                }
-
-
-
-                if (game.GameFactory.getGame().captivityName == p.name)
-                {
-                    s += " 監禁中";
-                }
-                s += "\n";
-            }
-            GameObject.Find("Canvas/GameInfo/PlayerList").GetComponent<Text>().text = s;
-            
         }
 
+        
     }
 }
-

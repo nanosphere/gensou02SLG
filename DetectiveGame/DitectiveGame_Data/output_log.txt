@@ -1,0 +1,81 @@
+Initialize engine version: 5.3.5f1 (960ebf59018a)
+GfxDevice: creating device client; threaded=1
+Direct3D:
+    Version:  Direct3D 11.0 [level 11.0]
+    Renderer: Intel(R) HD Graphics (ID=0x152)
+    Vendor:   Intel
+    VRAM:     912 MB
+Begin MonoManager ReloadAssembly
+Platform assembly: C:\data\GitHub\gensou02SLG\DetectiveGame\DitectiveGame_Data\Managed\UnityEngine.dll (this message is harmless)
+Loading C:\data\GitHub\gensou02SLG\DetectiveGame\DitectiveGame_Data\Managed\UnityEngine.dll into Unity Child Domain
+Platform assembly: C:\data\GitHub\gensou02SLG\DetectiveGame\DitectiveGame_Data\Managed\Assembly-CSharp.dll (this message is harmless)
+Loading C:\data\GitHub\gensou02SLG\DetectiveGame\DitectiveGame_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
+Platform assembly: C:\data\GitHub\gensou02SLG\DetectiveGame\DitectiveGame_Data\Managed\UnityEngine.UI.dll (this message is harmless)
+Loading C:\data\GitHub\gensou02SLG\DetectiveGame\DitectiveGame_Data\Managed\UnityEngine.UI.dll into Unity Child Domain
+Platform assembly: C:\data\GitHub\gensou02SLG\DetectiveGame\DitectiveGame_Data\Managed\UnityEngine.Networking.dll (this message is harmless)
+Loading C:\data\GitHub\gensou02SLG\DetectiveGame\DitectiveGame_Data\Managed\UnityEngine.Networking.dll into Unity Child Domain
+Platform assembly: C:\data\GitHub\gensou02SLG\DetectiveGame\DitectiveGame_Data\Managed\Newtonsoft.Json.dll (this message is harmless)
+Loading C:\data\GitHub\gensou02SLG\DetectiveGame\DitectiveGame_Data\Managed\Newtonsoft.Json.dll into Unity Child Domain
+- Completed reload, in  0.105 seconds
+Platform assembly: C:\data\GitHub\gensou02SLG\DetectiveGame\DitectiveGame_Data\Managed\System.Core.dll (this message is harmless)
+Platform assembly: C:\data\GitHub\gensou02SLG\DetectiveGame\DitectiveGame_Data\Managed\System.dll (this message is harmless)
+desktop: 1920x1080 60Hz; virtual: 1920x1080 at 0,0
+<RI> Initializing input.
+<RI> Input initialized.
+<RI> Initialized touch support.
+UnloadTime: 0.816249 ms
+[INFO]NetworkManager.init():サーバへ接続開始。ip=180.200.118.235 port=25565
+[INFO]NetworkManager.init():サーバへ接続開始。ip=180.200.118.235 port=25565
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 37)
+
+sendto failed with code -1 for char 9 and length 1464.
+sendto failed with code -1 for char 9 and length 1464.
+sendto failed with code -1 for char 9 and length 1464.
+[INFO]NetworkManager.init():client connect success.
+[INFO]NetworkManager.init():client connect success.
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 37)
+
+[INFO]NetworkUnity.recieveCode()
+[INFO]NetworkUnity.recieveCode()
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 37)
+
+[INFO]input code={"src":0,"dest":0,"cmd":1}%{"history":{},"players":{"players":[{"id":1,"name":"nazo037","state":0,"message":"","items":[0,0,0,0,0,0,0,0],"ai":0,"fdead":false,"deadReason":0,"deadid":0,"discoverer":0,"murderer":false,"murdererTurn":0,"dayDiscovere":0,"dayDead":false,"dayKill":0,"dayMurdererSuccess":false,"dayUseItem":0,"dayNoonCount":0,"dayNightVote":0,"dayMidKnifeP":0,"net_opp":0,"net_item":-1,"net_yes":false},{"id":2,"name":"Root","state":0,"message":"","items":[0,0,0,0,0,0,0,0],"ai":0,"fdead":false,"deadReason":0,"deadid":0,"discoverer":0,"murderer":false,"murdererTurn":0,"dayDiscovere":0,"dayDead":false,"dayKill":0,"dayMurdererSuccess":false,"dayUseItem":0,"dayNoonCount":0,"dayNightVote":0,"dayMidKnifeP":0,"net_opp":0,"net_item":-1,"net_yes":false},{"id":3,"name":"Roki","state":0,"message":"","items":[0,0,0,0,0,0,0,0],"ai":0,"fdead":false,"deadReason":0,"deadid":0,"discoverer":0,"murderer":false,"murdererTurn":0,"dayDiscovere":0,"dayDead":false,"dayKill":0,"dayMurdererSuccess":false,"dayUseItem":0,"dayNoonCount":0,"dayNightVote":0,"dayMidKnifeP":0,"net_opp":0,"net_item":-1,"net_yes":false}]},"items":{"items":[],"maxItem":[0,0,0,0,0,0]},"field":{"timer":300,"useKnife":2,"dementDay":2,"aiNum":2,"state":0,"turn":0,"dustItems":[0,0,0,0,0,0],"dustItem":0,"captivity":0,"yes":0,"no":0,"fmid_murdere":false,"now_time":0},"fdrawNewScene":false}
+[INFO]input code={"src":0,"dest":0,"cmd":1}%{"history":{},"players":{"players":[{"id":1,"name":"nazo037","state":0,"message":"","items":[0,0,0,0,0,0,0,0],"ai":0,"fdead":false,"deadReason":0,"deadid":0,"discoverer":0,"murderer":false,"murdererTurn":0,"dayDiscovere":0,"dayDead":false,"dayKill":0,"dayMurdererSuccess":false,"dayUseItem":0,"dayNoonCount":0,"dayNightVote":0,"dayMidKnifeP":0,"net_opp":0,"net_item":-1,"net_yes":false},{"id":2,"name":"Root","state":0,"message":"","items":[0,0,0,0,0,0,0,0],"ai":0,"fdead":false,"deadReason":0,"deadid":0,"discoverer":0,"murderer":false,"murdererTurn":0,"dayDiscovere":0,"dayDead":false,"dayKill":0,"dayMurdererSuccess":false,"dayUseItem":0,"dayNoonCount":0,"dayNightVote":0,"dayMidKnifeP":0,"net_opp":0,"net_item":-1,"net_yes":false},{"id":3,"name":"Roki","state":0,"message":"","items":[0,0,0,0,0,0,0,0],"ai":0,"fdead":false,"deadReason":0,"deadid":0,"discoverer":0,"murderer":false,"murdererTurn":0,"dayDiscovere":0,"dayDead":false,"dayKill":0,"dayMurdererSuccess":false,"dayUseItem":0,"dayNoonCount":0,"dayNightVote":0,"dayMidKnifeP":0,"net_opp":0,"net_item":-1,"net_yes":false}]},"items":{"items":[],"maxItem":[0,0,0,0,0,0]},"field":{"timer":300,"useKnife":2,"dementDay":2,"aiNum":2,"state":0,"turn":0,"dustItems":[0,0,0,0,0,0],"dustItem":0,"captivity":0,"yes":0,"no":0,"fmid_murdere":false,"now_time":0},"fdrawNewScene":false}
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 37)
+
+Platform assembly: C:\data\GitHub\gensou02SLG\DetectiveGame\DitectiveGame_Data\Managed\System.Xml.dll (this message is harmless)
+Platform assembly: C:\data\GitHub\gensou02SLG\DetectiveGame\DitectiveGame_Data\Managed\System.Data.dll (this message is harmless)
+[INFO]story.SyncGame():run.
+[INFO]story.SyncGame():run.
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 37)
+
+[INFO]create code={"src":0,"dest":0,"cmd":2}%"ちぃがぅ"
+[INFO]create code={"src":0,"dest":0,"cmd":2}%"ちぃがぅ"
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 37)
+
+[INFO]NetworkUnity.sendCode()
+[INFO]NetworkUnity.sendCode()
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 37)
+
+[INFO]NetworkUnity.recieveCode()
+[INFO]NetworkUnity.recieveCode()
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 37)
+
+[INFO]input code={"src":0,"dest":0,"cmd":2}%"ちぃがぅ"
+[INFO]input code={"src":0,"dest":0,"cmd":2}%"ちぃがぅ"
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 37)
+
+[INFO]story.AddPlayer():name=ちぃがぅ
+[INFO]story.AddPlayer():name=ちぃがぅ
+ 
+(Filename: C:/buildslave/unity/build/artifacts/generated/common/runtime/UnityEngineDebugBindings.gen.cpp Line: 37)
+

@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+
 
 namespace unity
 {
@@ -11,42 +13,80 @@ namespace unity
     {
         public network.NetworkUnity net = null;
 
-        public main.MainCamera mainCamera = null;
+        public main.MainUI mainui = null;
+        public main.DebugRoom debug_room = null;
+
         public main.Noon noon = null;
         public main.Night night = null;
         public main.Midnight midnight = null;
         public title.MainCamera title = null;
+        public main.Morning morning = null;
 
+        public bool firstUpdate = true;
 
-        public void update()
+        public void updateDraw(bool first)
         {
-            if (mainCamera != null) mainCamera.updateDraw();
+
+            //firstUpdate = first;
+            if (first)
+            {
+                moveScene();
+            }else
+            {
+                updateSecne();
+            }
+
+            if (GameFactory.getGame().localData.fgm)
+            {
+                var code = GameFactory.getNetworkManager().createCodeGameSync(first);
+                net.sendCode(code, RPCMode.Others);
+            }
+
         }
         
-        public void createDropdown(Dropdown drop,List<string> items,bool freset)
+
+        public void moveScene()
         {
-            if (drop == null) return;
-            drop.options.Clear();
-            foreach (var item in items)
+            if (GameFactory.getGame().localData.debug_room)
             {
-                drop.options.Add(new Dropdown.OptionData { text = item });
+                SceneManager.LoadScene("debug_room");
+                return;
             }
-            if (freset)
+            switch (GameFactory.getGame().shareData.field.state)
             {
-                drop.value = 1;
-                drop.value = 0;
+                case game.FIELD_STATE.EARLY_MORNING: SceneManager.LoadScene("early_morning"); break;
+                case game.FIELD_STATE.MORNING: SceneManager.LoadScene("morning"); break;
+                case game.FIELD_STATE.NOON: SceneManager.LoadScene("noon"); break;
+                case game.FIELD_STATE.NIGHT: SceneManager.LoadScene("night"); break;
+                case game.FIELD_STATE.MIDNIGHT: SceneManager.LoadScene("midnight"); break;
+                default:
+                    break;
             }
+            
         }
 
-        public void createPlayerDropdown(Dropdown drop)
+        public void updateSecne()
         {
-            List<string> items = new List<string>();
-            foreach (var p in game.GameFactory.getGame().players.players)
+            if (GameFactory.getGame().localData.debug_room)
             {
-                items.Add(p.name);
+                debug_room.updateDraw();
+                return;
             }
-            game.GameFactory.getUnityManager().createDropdown(drop, items, true);
+            if(mainui!=null)mainui.updateDraw();
+            switch (GameFactory.getGame().shareData.field.state)
+            {
+                case game.FIELD_STATE.EARLY_MORNING:  break;
+                case game.FIELD_STATE.MORNING: morning.updateDraw(false); break;
+                case game.FIELD_STATE.NOON: noon.updateDraw(false); break;
+                case game.FIELD_STATE.NIGHT: night.updateDraw(false); break;
+                case game.FIELD_STATE.MIDNIGHT: midnight.updateDraw(false); break;
+                default:
+                    break;
+            }
+
         }
+
+
     }
 }
 

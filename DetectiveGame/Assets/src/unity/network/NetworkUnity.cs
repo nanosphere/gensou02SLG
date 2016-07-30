@@ -11,54 +11,98 @@ namespace unity.network
 
         public string ip = "127.0.0.1";
         public string port = "25565";
-        public bool connected = false;
-        public bool fserver = true;
-
-        public common.MessageHistory messages = new common.MessageHistory(10,true,true);
-
+        
         public NetworkView nView = null;
 
-
+        void Awake()
+        {
+            GameFactory.getUnityManager().net = this;
+            nView = this.GetComponent<NetworkView>();
+            
+        }
         // Use this for initialization
         void Start()
         {
-            game.GameFactory.getUnityManager().net = this;
-            nView = this.GetComponent<NetworkView>();
+            
         }
 
         [RPC]
-        public void recieveCode(string s)
+        public void recieveCode(string s1, string s2, string s3, string s4, string s5)
         {
-            game.GameFactory.getNetworkManager().setCode(s);
+            Logger.info("NetworkUnity.recieveCode()");
+            string s = s1 + s2 + s3 + s4 + s5;
+            GameFactory.getNetworkManager().setCode(s);
         }
 
-        public void sendCodeAll(string s)
+        public void sendCode(string s, RPCMode mode)
         {
-            object[] args = new object[]
-            {
-                s
-            };
-            nView.RPC("recieveCode", RPCMode.All, args);
-        }
-        public void sendCodeOthers(string s)
-        {
-            object[] args = new object[]
-            {
-                s
-            };
-            nView.RPC("recieveCode", RPCMode.Others, args);
-        }
+            if (!GameFactory.getNetworkManager().connected) return;
 
+            if (mode == RPCMode.Server && GameFactory.getNetworkManager().fserver)
+            {
+                GameFactory.getNetworkManager().setCode(s);
+                return;
+            }
+
+            string s1 = "";
+            string s2 = "";
+            string s3 = "";
+            string s4 = "";
+            string s5 = "";
+            if (s.Length < 4000)
+            {
+                s1 = s;
+            }
+            else if (s.Length < 8000)
+            {
+                s1 = s.Substring(0, 4000);
+                s2 = s.Substring(4000);
+            }
+            else if (s.Length < 12000)
+            {
+                s1 = s.Substring(0, 4000);
+                s2 = s.Substring(4000, 4000);
+                s3 = s.Substring(8000);
+            }
+            else if (s.Length < 16000)
+            {
+                s1 = s.Substring(0, 4000);
+                s2 = s.Substring(4000, 4000);
+                s3 = s.Substring(8000, 4000);
+                s4 = s.Substring(12000);
+            }
+            else if (s.Length < 20000)
+            {
+                s1 = s.Substring(0, 4000);
+                s2 = s.Substring(4000, 4000);
+                s3 = s.Substring(8000, 4000);
+                s4 = s.Substring(12000, 4000);
+                s5 = s.Substring(16000);
+            }
+            else
+            {
+                Logger.error("NetworkUnity.sencCode():string is large 20000 over. len=" + s.Length);
+            }
+
+
+            object[] args = new object[]
+                {
+                s1,s2,s3,s4,s5
+                };
+            Logger.info("NetworkUnity.sendCode()");
+            nView.RPC("recieveCode", mode, args);
+            
+        }
 
         public void init()
         {
-            if (connected)
+            if (GameFactory.getNetworkManager().connected)
             {
                 return;
             }
-            if (fserver)
+            if (GameFactory.getNetworkManager().fserver)
             {
-                messages.addMessage("サーバの作成開始");
+                GameFactory.getNetworkManager().addMessage("サーバの作成開始");
 
                 //サーバーを立てる
                 // 接続可能人数,port,false
@@ -68,7 +112,7 @@ namespace unity.network
             }
             else
             {
-                messages.addMessage("サーバへの接続開始");
+                GameFactory.getNetworkManager().addMessage("サーバへの接続開始");
                 Logger.info("NetworkManager.init():サーバへ接続開始。ip=" + ip + " port=" + port);
 
                 // クライアントの接続
@@ -82,27 +126,27 @@ namespace unity.network
         //クライアント側で、クライアント接続時
         public void OnConnectedToServer()
         {
-            connected = true;
+            GameFactory.getNetworkManager().connected = true;
             Logger.info("NetworkManager.init():client connect success.");
 
-            messages.addMessage("サーバへの接続に成功しました");
+            GameFactory.getNetworkManager().addMessage("サーバへの接続に成功しました");
 
         }
 
         // サーバ立ち上げ時に生成
         public void OnServerInitialized()
         {
-            connected = true;
+            GameFactory.getNetworkManager().connected = true;
             Logger.info("NetworkManager.init():server success.");
-            messages.addMessage("サーバの作成に成功しました");
+            GameFactory.getNetworkManager().addMessage("サーバの作成に成功しました");
         }
 
         // プレイヤーが接続されたとき、サーバー側で呼び出されます。
         public void OnPlayerConnected(NetworkPlayer player)
         {
             Logger.info("Connected from " + player.ipAddress + ":" + player.port);
-            connected = true;
-            messages.addMessage("クライアントからの接続に成功しました player="+player);
+            GameFactory.getNetworkManager().connected = true;
+            GameFactory.getNetworkManager().addMessage("クライアントからの接続に成功しました player="+player);
         }
 
         //プレイヤーが切断されたとき、サーバー側で呼び出されます。
@@ -111,13 +155,13 @@ namespace unity.network
             Logger.info("Clean up after player " + player);
             Network.RemoveRPCs(player);
             Network.DestroyPlayerObjects(player);
-            messages.addMessage("クライアントが切断されました player="+ player);
+            GameFactory.getNetworkManager().addMessage("クライアントが切断されました player="+ player);
         }
 
         //サーバーから切断したとき、クライアント側で呼び出されます。
         public void OnDisconnectedFromServer(NetworkDisconnection info)
         {
-            connected = false;
+            GameFactory.getNetworkManager().connected = false;
             if (Network.isServer)
             {
                 Logger.info("Local server connection disconnected");
@@ -130,14 +174,14 @@ namespace unity.network
             {
                 Logger.info("Successfully diconnected from the server");
             }
-            messages.addMessage("サーバから切断されました");
+            GameFactory.getNetworkManager().addMessage("サーバから切断されました");
         }
 
         //サーバーの接続に失敗したとき、クライアント側で呼び出されます。
         public void OnFailedToConnect(NetworkConnectionError error)
         {
             Logger.info("Could not connect to server: " + error);
-            messages.addMessage("サーバへの接続に失敗しました error="+error);
+            GameFactory.getNetworkManager().addMessage("サーバへの接続に失敗しました error="+error);
         }
         
 
