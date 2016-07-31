@@ -173,7 +173,14 @@ namespace game.db
             }
             return "";
         }
-
+        public bool hasItem(ITEM item)
+        {
+            for (int i = 0; i < items.Length; i++)
+            {
+                if (items[i] == item) return true;
+            }
+            return false;
+        }
         public static string getStr(ITEM item)
         {
             switch (item)

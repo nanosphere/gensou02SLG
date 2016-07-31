@@ -117,7 +117,7 @@ namespace unity.main
                 foreach (var p in GameFactory.getGame().shareData.players.players)
                 {
                     if (p.id == GameFactory.getGame().localData.myPlayer) continue;
-                    if (p.state != game.db.PLAYER_STATE.NONE) continue;
+                    if (p.state == game.db.PLAYER_STATE.NOON_END) continue;
 
                     noon1_chara.add("" + p.name, p.id);
                 }

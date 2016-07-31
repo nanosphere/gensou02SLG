@@ -73,6 +73,7 @@ namespace unity.main
 
             string code = GameFactory.getNetworkManager().createCodeSendData(dat);
             GameFactory.getUnityManager().net.sendCode(code, RPCMode.Server);
+            
 
         }
         public void onMid2Chenge()

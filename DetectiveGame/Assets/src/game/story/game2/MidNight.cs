@@ -307,19 +307,16 @@ namespace game.story.game2
             //----------------
             //殺人者で生き残った人にマーダー判定(および設定)
             //----------------
-            if (GameFactory.getGame().shareData.players.getUseItemPlayers(ITEM.KNIFE).Count == 0)
+            foreach (var p in GameFactory.getGame().shareData.players.players)
             {
-                foreach (var p in GameFactory.getGame().shareData.players.players)
-                {
-                    sub.plusMurderer(p);
-                }
+                sub.plusMurderer(p);
             }
-
-
+            
         }
         private void checkEnd()
         {
             ShareData gm = GameFactory.getGame().shareData;
+
             
 
             //----------------

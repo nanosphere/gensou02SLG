@@ -55,11 +55,11 @@ namespace unity.main
         public void onClickNextTurn()
         {
             
-            
-
             if (GameFactory.getGame().localData.fgm)
             {
                 new game.story.game1.NextTurn();
+
+                
             }
             GameFactory.getUnityManager().updateDraw(true);
             
@@ -164,7 +164,7 @@ namespace unity.main
                                 // 自分のみの情報
                                 if (p.murderer)
                                 {
-                                    s += "<color=#ff0000ff>マーダー(" + (p.murdererTurn-1)+ ")</color> ";
+                                    s += "<color=#ff0000ff>マーダー(" + (p.murdererTurn)+ ")</color> ";
                                 }
                                 else
                                 {

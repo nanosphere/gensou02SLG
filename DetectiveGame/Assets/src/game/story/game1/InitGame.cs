@@ -73,7 +73,7 @@ namespace game.story.game1
             {
                 GameFactory.getGame().shareData.field.dustItems[i] = 0;
             }
-            GameFactory.getGame().shareData.field.dustItem = (db.ITEM)MyRandom.rand(1, (int)db.ITEM.END - 1);
+            GameFactory.getGame().shareData.field.dustItem = (db.ITEM)MyRandom.rand(2, (int)db.ITEM.END - 1);
 
             // itemを配る
             foreach (var p in data.players.players)

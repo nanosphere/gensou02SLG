@@ -105,6 +105,35 @@ namespace game
                     localData.game.addMessage("進めるを押すと進みます");
                 }
 
+                // 状況確認
+                if (shareData.field.turn >= 1)
+                {
+                    bool f = true;
+                    foreach (var p in shareData.players.players)
+                    {
+                        if (p.dayDead)
+                        {
+                            f = false;
+
+                            localData.game2.addMessage(p.name + "さんが無残な死体で発見されました");
+                            localData.game2.addMessage("　所持アイテム");
+                            for (int i = 0; i < p.items.Length; i++)
+                            {
+                                if (p.getItem(i) == ITEM.NONE) continue;
+                                localData.game2.addMessage("　　" + p.getItemStr(i));
+                            }
+                        }
+                    }
+                    if (f)
+                    {
+                        localData.game2.addMessage("昨晩は何事もなかったようです");
+                    }
+
+                    //終了判定
+                    // todo
+
+                }
+
             }
             else if (shareData.field.state == FIELD_STATE.NOON)
             {
